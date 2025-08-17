@@ -1,0 +1,5 @@
+# Docker integration for Homepage
+# Shows container status and stats
+
+my-docker:
+  socket: /var/run/docker.sock

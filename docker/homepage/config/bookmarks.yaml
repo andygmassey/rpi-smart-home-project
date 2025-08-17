@@ -1,0 +1,21 @@
+- Quick Actions:
+  - System Vitals:
+      - abbr: SYS
+        href: http://192.168.1.76:3002/d/a342df05-226d-4233-b5e7-f46688260197/reterminal-system-vitals
+
+  - Admin Panels:
+      - abbr: HA
+        href: http://192.168.1.76:8123/config
+      - abbr: PH
+        href: http://192.168.1.76:8080/admin
+      - abbr: UK
+        href: http://192.168.1.76:3001/dashboard
+
+- External Links:
+  - Documentation:
+      - abbr: GR
+        href: https://grafana.com/docs/
+      - abbr: HA
+        href: https://home-assistant.io/docs/
+      - abbr: PH
+        href: https://docs.pi-hole.net/

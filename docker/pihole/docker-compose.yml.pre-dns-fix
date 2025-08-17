@@ -1,0 +1,22 @@
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "1053:53/tcp"
+      - "1053:53/udp"
+      - "8080:80/tcp"
+    environment:
+      TZ: 'Asia/Hong_Kong'
+      # No WEBPASSWORD variable = no password required
+      PIHOLE_DNS_: '8.8.8.8;8.8.4.4'  # Upstream DNS servers
+      DNSMASQ_LISTENING: 'all'
+      VIRTUAL_HOST: '192.168.1.76'
+      FTLCONF_LOCAL_IPV4: '192.168.1.76'
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    restart: unless-stopped
+    dns:
+      - 127.0.0.1
+      - 8.8.8.8

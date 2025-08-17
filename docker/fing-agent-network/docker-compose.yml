@@ -1,0 +1,15 @@
+services:
+  network-monitor:
+    build: .
+    container_name: network-monitor
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    environment:
+      - TZ=Europe/London
+      - MONITOR_NAME=reTerminal-NetworkMonitor
+    volumes:
+      - ./logs:/var/log/fing:rw
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW

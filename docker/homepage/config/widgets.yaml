@@ -1,0 +1,29 @@
+- resources:
+    backend: resources
+    expanded: true
+    cpu: true
+    memory: true
+    disk: /
+    temperature: true
+    uptime: true
+
+- search:
+    provider: duckduckgo
+    target: _blank
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: full
+      timeStyle: short
+    timezone: Asia/Hong_Kong
+
+- weather:
+    location: Hong Kong
+    units: metric
+    provider: openweathermap
+    apiKey: # Add your API key if you want weather
+
+- greeting:
+    text_size: xl
+    text: "Welcome to reTerminal Hub"

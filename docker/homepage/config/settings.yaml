@@ -1,0 +1,45 @@
+title: reTerminal Smart Home Hub
+favicon: https://cdn-icons-png.flaticon.com/512/25/25694.png
+theme: dark
+color: slate
+target: _self
+cardBlur: sm
+hideVersion: true
+startUrl: /
+
+background:
+  image: https://images.unsplash.com/photo-1558618666-9a8b6e0bbc8e?w=1920
+  blur: sm
+  saturate: 50
+  brightness: 50
+  opacity: 50
+
+layout:
+  Control Panel:
+    style: row
+    columns: 3
+    tab: Control
+    icon: mdi-view-dashboard-variant
+  Smart Home:
+    style: row
+    columns: 3
+    tab: Home
+    icon: mdi-home-automation
+  Network & Security:
+    style: row  
+    columns: 2
+    tab: Network
+    icon: mdi-security-network
+  Monitoring & Data:
+    style: row
+    columns: 3
+    tab: Monitor
+    icon: mdi-chart-line
+
+providers:
+  openweathermap: # Add your API key here for weather widget
+  
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+  hideVisitURL: false

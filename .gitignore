@@ -1,0 +1,110 @@
+# Sensitive files
+*.key
+*.pem
+*secret*
+*password*
+*token*
+.env
+*.env
+
+# Database and data files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+*.tar.gz
+*.zip
+
+# Docker data directories (contain runtime data)
+docker/*/data/
+docker/*/logs/
+docker/*/config/*.db
+docker/grafana-influx/grafana-data/
+docker/grafana-influx/influxdb-data/
+
+# Temporary files
+*.tmp
+*~
+.DS_Store
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env/
+
+# Node modules (if any)
+node_modules/
+
+# System files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Personal/local configuration
+*local*
+*personal*
+
+# Large files that shouldn't be in git
+*.img
+*.iso
+
+# SSH keys
+id_rsa*
+*.pub
+known_hosts
+
+# Certificate files
+*.crt
+*.csr
+
+# EXTRA SECURITY - Never commit these patterns
+*api_key*
+*api-key*
+*apikey*
+*access_token*
+*access-token*
+*auth*
+*credential*
+*wifi*
+*ssid*
+*wpa*
+*mqtt_user*
+*mqtt_pass*
+*influx_user*
+*influx_pass*
+*grafana_admin*
+*admin_pass*
+*.conf
+msmtprc*
+*email*
+*smtp*
+
+# Home Assistant specific sensitive files
+secrets.yaml
+known_devices.yaml
+
+# Network configuration
+wpa_supplicant.conf
+dhcpcd.conf
+
+# Any file with "private" or "secret" in the name
+*private*
+*secret*
+*Secret*
+*Private*
+*PRIVATE*
+*SECRET*

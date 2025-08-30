@@ -58,6 +58,7 @@ This project provides a complete smart home solution featuring real-time monitor
 | **Homepage** | Unified Dashboard | http://192.168.1.76:3002 | 3002 |
 | **Uptime Kuma** | Service Monitoring | http://192.168.1.76:3001 | 3001 |
 | **MQTT Broker** | IoT Messaging | - | 1883 |
+| **Fing Agent** | Network Discovery | - | - |
 
 ## 🚀 Quick Start
 

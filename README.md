@@ -147,7 +147,7 @@ This system includes sophisticated VPN routing infrastructure for selective traf
 
 #### Features
 - **Selective DNS Routing**: Pi-hole configured to route streaming domains through VPN
-- **Policy-based Routing**: Custom iptables rules for targeted traffic routing
+- **Pi-hole DNS Integration**: Selective DNS routing through VPN for specific domains
 - **Automated Scripts**: Systemd services for VPN connection and routing management
 - **Zero Impact**: Normal browsing traffic remains unaffected
 

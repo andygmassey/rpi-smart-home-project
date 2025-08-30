@@ -51,14 +51,13 @@ This project provides a complete smart home solution featuring real-time monitor
 
 | Service | Purpose | Web Interface | Port |
 |---------|---------|---------------|------|
-| **Home Assistant** | Automation Hub | http://localhost:8123 | 8123 |
-| **Grafana** | Data Visualization | http://localhost:3000 | 3000 |
+| **Home Assistant** | Automation Hub | http://192.168.1.76:8123 | 8123 |
+| **Grafana** | Data Visualization | http://192.168.1.76:3002 | 3002 |
 | **InfluxDB** | Metrics Database | - | 8086 |
-| **Pi-hole** | DNS + Ad Blocking | http://localhost/admin | 80 |
-| **Homepage** | Unified Dashboard | http://localhost:3000 | 3000 |
-| **Uptime Kuma** | Service Monitoring | http://localhost:3001 | 3001 |
+| **Pi-hole** | DNS + Ad Blocking | http://192.168.1.76/admin | 80 |
+| **Homepage** | Unified Dashboard | http://192.168.1.76:3002 | 3002 |
+| **Uptime Kuma** | Service Monitoring | http://192.168.1.76:3001 | 3001 |
 | **MQTT Broker** | IoT Messaging | - | 1883 |
-| **Fing Agent** | Network Discovery | - | - |
 
 ## 🚀 Quick Start
 
@@ -81,7 +80,7 @@ nano .env  # Configure your passwords
 ./scripts/system/deploy-all-services.sh
 
 # Access main dashboard
-open http://localhost:3000
+open http://192.168.1.76:3002
 ```
 
 ## 📚 Documentation
@@ -112,7 +111,6 @@ open http://localhost:3000
 │   ├── 📁 homepage/        # Unified dashboard
 │   ├── 📁 uptime-kuma/     # Service monitoring
 │   ├── 📁 mqtt-broker/     # IoT messaging
-│   └── 📁 fing-agent-network/ # Network discovery
 ├── 📁 docs/                # Comprehensive documentation
 ├── 📄 .env.example         # Environment configuration template
 └── 📄 .gitignore          # Security-focused exclusions
@@ -141,6 +139,20 @@ open http://localhost:3000
 ### 🔧 Hardware Scripts (`scripts/hardware/`)
 - **`multi_button_handler.py`** - reTerminal button control
 - **`f1_dashboard_handler.py`** - F1 dashboard integration
+n## 🌐 VPN Routing Infrastructure
+
+### Amazon Prime UK Content Access
+
+This system includes sophisticated VPN routing infrastructure for selective traffic routing through geographic VPN endpoints:
+
+#### Features
+- **Selective DNS Routing**: Pi-hole configured to route streaming domains through VPN
+- **Policy-based Routing**: Custom iptables rules for targeted traffic routing
+- **Automated Scripts**: Systemd services for VPN connection and routing management
+- **Zero Impact**: Normal browsing traffic remains unaffected
+
+> **Note**: VPN routing requires valid Getflix VPN credentials and is configured for UK geo-location access.
+
 
 ## 🐳 Docker Services
 

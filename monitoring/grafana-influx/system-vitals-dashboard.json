@@ -1,0 +1,142 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "a342df05-226d-4233-b5e7-f46688260197",
+    "title": "reTerminal System Vitals",
+    "tags": ["system", "monitoring", "raspberry-pi"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "INFLUXDB_DATASOURCE_UID"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 80}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "id": 2,
+        "targets": [
+          {
+            "datasource": {"type": "influxdb", "uid": "INFLUXDB_DATASOURCE_UID"},
+            "query": "SELECT mean(\"cpu_usage\") FROM \"system_vitals\" WHERE \"type\" = 'cpu' AND $timeFilter GROUP BY time($__interval) fill(null)",
+            "refId": "A"
+          }
+        ],
+        "title": "CPU Usage",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "INFLUXDB_DATASOURCE_UID"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 85}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "id": 4,
+        "targets": [
+          {
+            "datasource": {"type": "influxdb", "uid": "INFLUXDB_DATASOURCE_UID"},
+            "query": "SELECT mean(\"memory_percent\") FROM \"system_vitals\" WHERE \"type\" = 'memory' AND $timeFilter GROUP BY time($__interval) fill(null)",
+            "refId": "A"
+          }
+        ],
+        "title": "Memory Usage", 
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "INFLUXDB_DATASOURCE_UID"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 80},
+                {"color": "red", "value": 90}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 12, "x": 0, "y": 8},
+        "id": 6,
+        "targets": [
+          {
+            "datasource": {"type": "influxdb", "uid": "INFLUXDB_DATASOURCE_UID"},
+            "query": "SELECT mean(\"disk_usage_percent\") FROM \"system_vitals\" WHERE \"type\" = 'disk' AND $timeFilter GROUP BY time($__interval) fill(null)",
+            "refId": "A"
+          }
+        ],
+        "title": "Disk Usage",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "influxdb",
+          "uid": "INFLUXDB_DATASOURCE_UID"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "unit": "celsius",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 60},
+                {"color": "red", "value": 75}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 4, "w": 12, "x": 12, "y": 8},
+        "id": 8,
+        "targets": [
+          {
+            "datasource": {"type": "influxdb", "uid": "INFLUXDB_DATASOURCE_UID"},
+            "query": "SELECT mean(\"cpu_temp\") FROM \"system_vitals\" WHERE \"type\" = 'temperature' AND $timeFilter GROUP BY time($__interval) fill(null)",
+            "refId": "A"
+          }
+        ],
+        "title": "CPU Temperature",
+        "type": "stat"
+      }
+    ],
+    "refresh": "5s",
+    "time": {"from": "now-1h", "to": "now"},
+    "timepicker": {},
+    "timezone": "",
+    "version": 1
+  },
+  "folderId": 0,
+  "overwrite": false,
+  "message": "System Vitals Dashboard - Replace INFLUXDB_DATASOURCE_UID with your actual InfluxDB datasource UID"
+}

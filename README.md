@@ -344,3 +344,45 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **🏠 Built with ❤️ for Smart Home Automation**
 
 *Last Updated: August 2025*
+
+## Monitoring Stack
+
+### Grafana + InfluxDB Setup
+The `monitoring/grafana-influx/` directory contains a complete monitoring solution:
+
+- **Grafana Dashboard**: System vitals visualization
+- **InfluxDB Database**: Time-series metrics storage
+- **Docker Compose**: Easy deployment
+
+**Quick Start:**
+```bash
+cd monitoring/grafana-influx
+# Edit docker-compose.yml to set your passwords
+docker compose up -d
+# Access: http://your-pi:3002
+```
+
+**Features:**
+- Real-time CPU, memory, disk monitoring
+- Temperature tracking
+- Responsive dashboard design
+- Secure authentication
+- Automated log rotation
+
+See [monitoring/grafana-influx/README.md](monitoring/grafana-influx/README.md) for detailed setup instructions.
+
+## Recent Updates (2025-08-31)
+
+### System Maintenance Performed
+- ✅ **Log Rotation Fixed**: Resolved duplicate logrotate configuration causing system logs to grow uncontrolled
+- ✅ **Network Monitoring Optimized**: Removed duplicate Fing agents causing log spam
+- ✅ **Dashboard Restored**: Fixed Grafana System Vitals dashboard with proper InfluxDB queries
+- ✅ **Authentication Fixed**: Resolved Grafana login issues caused by anonymous access configuration
+- ✅ **Disk Space Reclaimed**: Freed up significant space through proper log management
+
+### System Health Status
+- **Log Size**: Reduced from 480MB+ to manageable levels
+- **Disk Usage**: Optimized from 40% to 38%
+- **Monitoring**: All dashboards functional with live data
+- **Performance**: System load normalized, log spam eliminated
+

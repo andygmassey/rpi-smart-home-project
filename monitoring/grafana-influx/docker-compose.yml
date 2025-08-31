@@ -1,0 +1,30 @@
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb-data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=smarthome
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=CHANGE_ME_INFLUX_PASSWORD
+      - INFLUXDB_USER=grafana  
+      - INFLUXDB_USER_PASSWORD=CHANGE_ME_GRAFANA_DB_PASSWORD
+      - TZ=Asia/Hong_Kong
+
+  grafana:
+    image: grafana/grafana:9.5.15
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=CHANGE_ME_GRAFANA_PASSWORD
+      - TZ=Asia/Hong_Kong
+    depends_on:
+      - influxdb

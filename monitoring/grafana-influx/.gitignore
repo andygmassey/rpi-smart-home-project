@@ -1,0 +1,26 @@
+# Data directories - contain sensitive information
+grafana-data/
+influxdb-data/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Docker compose override files
+docker-compose.override.yml
+
+# Backup files  
+*.tar.gz
+*.sql
+*.backup
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db

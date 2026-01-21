@@ -99,3 +99,20 @@ Log file: `/var/log/memory_cleanup.log`
 ---
 
 **Next Review**: Check system after 24 hours to verify stability
+
+---
+
+## 2026-01-21: Uptime Kuma False Alerts Fix
+
+**Issue**: InfluxDB (and other services) showing "DOWN then UP" alerts every few hours.
+
+**Root Cause**: All Uptime Kuma monitors had `maxretries = 0`, meaning a single failed check (e.g., momentary network hiccup like `ECONNRESET`) triggered an immediate DOWN alert. The next successful check 5 minutes later triggered an UP alert.
+
+**Fix**: Updated all monitors to `maxretries = 3` via SQLite:
+```bash
+cd ~/uptime-kuma && docker compose stop
+sudo sqlite3 data/kuma.db 'UPDATE monitor SET maxretries = 3 WHERE maxretries < 2;'
+docker compose start
+```
+
+**Result**: Uptime Kuma now retries 3 times before alerting, eliminating false positives from transient network issues.

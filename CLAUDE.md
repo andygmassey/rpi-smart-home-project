@@ -22,7 +22,7 @@ A smart home automation system running on a SeeedStudio reTerminal (Raspberry Pi
 │  :8123          │              │                    │
 ├─────────────────┼──────────────┼────────────────────┤
 │  Pi-hole:80     │ MQTT:1883    │ Fing Agent        │
-│  (DISABLED)     │ (Mosquitto)  │ (Network Scan)    │
+│  (Unlocator DNS)│ (Mosquitto)  │ (Network Scan)    │
 ├─────────────────────────────────────────────────────┤
 │                   Docker Engine                      │
 ├─────────────────────────────────────────────────────┤
@@ -94,7 +94,7 @@ ls ~/backups/
 | Homepage | 3000 | ~/homepage-dashboard | Running |
 | Uptime Kuma | 3001 | ~/uptime-kuma | Running |
 | MQTT | 1883 | ~/mqtt-broker | Running |
-| Pi-hole | 80 | ~/pihole-docker | **Disabled** |
+| Pi-hole | 80 | ~/pihole-docker | Running (Watchdog) |
 
 ## Common Commands
 
@@ -138,14 +138,31 @@ All services use environment variables from `.env`. Key variables:
 
 ## Pi-hole Status
 
-**Currently disabled** after Dec 2025 OOM incident (see `docs/incidents/PIHOLE_INCIDENT_REPORT.md`).
+**Running** with 3-layer watchdog protection (re-enabled Jan 21, 2026).
 
-To re-enable:
-1. Edit `docker/pihole/docker-compose.yml`
-2. Change `restart: "no"` to `restart: unless-stopped`
-3. Remove `healthcheck: disable: true`
-4. Deploy: `./deploy.sh`
-5. Enable service: `sudo systemctl enable pihole-docker`
+### Watchdog Layers
+- **Layer 1**: Docker restart policy (container crashes)
+- **Layer 2**: `pihole-watchdog.sh` every 2 min (service unhealthy)
+- **Layer 3**: Systemd `pihole-docker.service` (boot startup)
+
+### Configuration
+- **Upstream DNS**: Unlocator SmartDNS (185.37.37.37, 185.37.39.39)
+- **Database retention**: 7 days (prevents growth issues)
+- **Cooldowns**: 5 min between restarts, max 3/hour
+
+### Useful Commands
+```bash
+# Check watchdog logs
+tail -50 ~/pihole-watchdog.log
+
+# Check alerts
+cat ~/pihole-alerts.log
+
+# Reset watchdog state after manual fix
+rm ~/.pihole-watchdog-state
+```
+
+See `docs/WATCHDOG_SYSTEM.md` for full documentation.
 
 ## Safety Notes
 

@@ -139,20 +139,25 @@ open http://192.168.1.76:3002
 
 ### 🔧 Hardware Scripts (`scripts/hardware/`)
 - **`multi_button_handler.py`** - reTerminal button control
-- **`f1_dashboard_handler.py`** - F1 dashboard integration
-n## 🌐 VPN Routing Infrastructure
 
-### Amazon Prime UK Content Access
+## 🛡️ Pi-hole Watchdog System
 
-This system includes sophisticated VPN routing infrastructure for selective traffic routing through geographic VPN endpoints:
+Pi-hole provides network-wide DNS and ad-blocking with a bulletproof 3-layer watchdog system:
 
-#### Features
-- **Selective DNS Routing**: Pi-hole configured to route streaming domains through VPN
-- **Pi-hole DNS Integration**: Selective DNS routing through VPN for specific domains
-- **Automated Scripts**: Systemd services for VPN connection and routing management
-- **Zero Impact**: Normal browsing traffic remains unaffected
+### Coordinated Protection Layers
+| Layer | Responsibility | Mechanism |
+|-------|---------------|-----------|
+| **Layer 1** | Container crashes | Docker restart policy |
+| **Layer 2** | Service unhealthy | Smart watchdog script (every 2 min) |
+| **Layer 3** | System boot | Systemd service |
 
-> **Note**: VPN routing requires valid Getflix VPN credentials and is configured for UK geo-location access.
+### Features
+- **Cooldown Protection**: 5-minute minimum between restarts, max 3/hour
+- **Escalation**: Cleanup → Soft restart → Hard restart → Alert
+- **Unlocator SmartDNS**: Upstream DNS for geo-unblocking streaming services
+- **Database Capped**: 7-day retention prevents runaway growth
+
+See `docs/WATCHDOG_SYSTEM.md` for full documentation.
 
 
 ## 🐳 Docker Services
@@ -343,7 +348,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **🏠 Built with ❤️ for Smart Home Automation**
 
-*Last Updated: August 2025*
+*Last Updated: January 2026*
 
 ## Monitoring Stack
 
@@ -371,18 +376,33 @@ docker compose up -d
 
 See [monitoring/grafana-influx/README.md](monitoring/grafana-influx/README.md) for detailed setup instructions.
 
-## Recent Updates (2025-08-31)
+## Recent Updates
 
-### System Maintenance Performed
-- ✅ **Log Rotation Fixed**: Resolved duplicate logrotate configuration causing system logs to grow uncontrolled
-- ✅ **Network Monitoring Optimized**: Removed duplicate Fing agents causing log spam
-- ✅ **Dashboard Restored**: Fixed Grafana System Vitals dashboard with proper InfluxDB queries
-- ✅ **Authentication Fixed**: Resolved Grafana login issues caused by anonymous access configuration
-- ✅ **Disk Space Reclaimed**: Freed up significant space through proper log management
+### 2026-01-21: Major Infrastructure Overhaul
 
-### System Health Status
-- **Log Size**: Reduced from 480MB+ to manageable levels
-- **Disk Usage**: Optimized from 40% to 38%
-- **Monitoring**: All dashboards functional with live data
-- **Performance**: System load normalized, log spam eliminated
+#### Pi-hole Re-enabled with Bulletproof Watchdog
+- ✅ **Pi-hole Restored**: Re-enabled after 7 weeks offline (Dec 2025 OOM incident)
+- ✅ **3-Layer Watchdog**: Coordinated Docker/Script/Systemd protection
+- ✅ **Unlocator SmartDNS**: Configured for streaming geo-unblocking (185.37.37.37, 185.37.39.39)
+- ✅ **Database Capped**: 7-day retention prevents growth issues
+
+#### Security & Cleanup
+- ✅ **Getflix VPN Removed**: Broken VPN infrastructure completely removed
+- ✅ **Credentials Secured**: Removed all hardcoded passwords from scripts
+- ✅ **IP Parameterized**: All hardcoded IPs replaced with environment variables
+
+#### Backup System
+- ✅ **Borg Backups**: Initialized and running every 2 weeks
+- ✅ **Fresh Gold Master**: New disk image created (Jan 21, 2026)
+- ✅ **Deploy/Rollback Scripts**: Safe deployment with automatic backups
+
+#### Documentation
+- ✅ **WATCHDOG_SYSTEM.md**: Full watchdog architecture documentation
+- ✅ **PIHOLE_INCIDENT_REPORT.md**: Dec 2025 incident post-mortem
+- ✅ **CLAUDE.md**: AI assistant context file
+
+### 2025-08-31: System Maintenance
+- ✅ Log rotation fixed
+- ✅ Network monitoring optimized
+- ✅ Grafana dashboard restored
 

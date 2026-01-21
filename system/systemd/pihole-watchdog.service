@@ -1,0 +1,19 @@
+[Unit]
+Description=Pi-hole Smart Watchdog - Health Check
+Documentation=file:///home/massey/rpi-smart-home-project/docs/WATCHDOG_SYSTEM.md
+After=docker.service pihole-docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+User=massey
+ExecStart=/home/massey/pihole-watchdog.sh
+StandardOutput=journal
+StandardError=journal
+
+# Don't restart if the watchdog script itself fails
+Restart=no
+
+# Resource limits for the watchdog itself
+MemoryMax=50M
+CPUQuota=10%

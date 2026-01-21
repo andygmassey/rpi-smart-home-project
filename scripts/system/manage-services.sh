@@ -6,7 +6,7 @@ show_status() {
     echo "🏠 HOME ASSISTANT:"
     if systemctl is-active --quiet hassio-supervisor; then
         echo "  Status: ✅ Running"
-        echo "  Web UI: http://192.168.1.76:8123"
+        echo "  Web UI: http://${DEVICE_IP:-192.168.1.76}:8123"
     else
         echo "  Status: ❌ Not running"
     fi
@@ -15,8 +15,8 @@ show_status() {
     echo "🛡️ PI-HOLE:"
     if docker ps --filter "name=pihole" --filter "status=running" -q | grep -q .; then
         echo "  Status: ✅ Running"
-        echo "  Web UI: http://192.168.1.76:8080"
-        echo "  DNS: 192.168.1.76:1053"
+        echo "  Web UI: http://${DEVICE_IP:-192.168.1.76}:8080"
+        echo "  DNS: ${DEVICE_IP:-192.168.1.76}:1053"
     else
         echo "  Status: ❌ Not running"
     fi
@@ -39,7 +39,7 @@ show_status() {
     echo "📊 UPTIME KUMA:"
     if docker ps --filter "name=uptime-kuma" --filter "status=running" -q | grep -q .; then
         echo "  Status: ✅ Running"
-        echo "  Web UI: http://192.168.1.76:3001"
+        echo "  Web UI: http://${DEVICE_IP:-192.168.1.76}:3001"
     else
         echo "  Status: ❌ Not running"
     fi
@@ -48,7 +48,7 @@ show_status() {
     echo "🏠 HOMEPAGE DASHBOARD:"
     if docker ps --filter "name=homepage" --filter "status=running" -q | grep -q .; then
         echo "  Status: ✅ Running"
-        echo "  Web UI: http://192.168.1.76:3000"
+        echo "  Web UI: http://${DEVICE_IP:-192.168.1.76}:3000"
     else
         echo "  Status: ❌ Not running"
     fi
@@ -57,8 +57,8 @@ show_status() {
     echo "📊 GRAFANA & INFLUXDB:"
     if docker ps --filter "name=grafana" --filter "status=running" -q | grep -q .; then
         echo "  Status: ✅ Running"
-        echo "  Grafana: http://192.168.1.76:3002 (admin/admin123)"
-        echo "  InfluxDB: http://192.168.1.76:8086"
+        echo "  Grafana: http://${DEVICE_IP:-192.168.1.76}:3002"
+        echo "  InfluxDB: http://${DEVICE_IP:-192.168.1.76}:8086"
     else
         echo "  Status: ❌ Not running"
     fi
@@ -67,8 +67,8 @@ show_status() {
     echo "📡 MQTT BROKER:"
     if docker ps --filter "name=mosquitto" --filter "status=running" -q | grep -q .; then
         echo "  Status: ✅ Running"
-        echo "  MQTT: 192.168.1.76:1883"
-        echo "  WebSocket: 192.168.1.76:9001"
+        echo "  MQTT: ${DEVICE_IP:-192.168.1.76}:1883"
+        echo "  WebSocket: ${DEVICE_IP:-192.168.1.76}:9001"
     else
         echo "  Status: ❌ Not running"
     fi

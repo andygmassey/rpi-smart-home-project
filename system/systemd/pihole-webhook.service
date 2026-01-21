@@ -1,0 +1,15 @@
+[Unit]
+Description=Pi-hole Webhook Service
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=massey
+WorkingDirectory=/home/massey/pihole-webhook
+ExecStart=/usr/bin/python3 /home/massey/pihole-webhook/webhook.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+# reTerminal Smart Home - Crontab Configuration
+# Install with: crontab system/cron/crontab.txt
+
+# System vitals monitoring - every minute
+* * * * * /home/massey/rpi_vitals_monitor.sh >> /home/massey/rpi_vitals.log 2>&1
+
+# Borg backup - every 2 weeks at 2am
+0 2 */14 * * /usr/local/bin/borg-backup.sh
+
+# Memory cleanup - every 6 hours
+0 */6 * * * /home/massey/memory_cleanup.sh >/dev/null 2>&1
+
+# Log monitoring - every 2 hours
+0 */2 * * * /home/massey/log_monitor.sh

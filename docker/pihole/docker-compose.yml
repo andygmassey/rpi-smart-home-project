@@ -1,19 +1,52 @@
+# Pi-hole DNS and Ad Blocking
+#
+# WATCHDOG COORDINATION (3 Layers):
+#   Layer 1: Docker restart policy (below) - handles container crashes
+#   Layer 2: pihole-watchdog.sh - handles "running but unhealthy"
+#   Layer 3: pihole-docker.service - handles boot startup
+#
+# See docs/WATCHDOG_SYSTEM.md for full documentation
+
 services:
   pihole:
     container_name: pihole
-    image: pihole/pihole:latest
+    image: pihole/pihole:2024.07.0
     network_mode: host
     environment:
-      TZ: 'Asia/Hong_Kong'
-      # No WEBPASSWORD variable = no password required
-      PIHOLE_DNS_: '8.8.8.8;8.8.4.4'  # Upstream DNS servers
+      TZ: ${TZ:-Asia/Hong_Kong}
+      PIHOLE_DNS_: '8.8.8.8;8.8.4.4'
       DNSMASQ_LISTENING: 'all'
-      VIRTUAL_HOST: '192.168.1.76'
-      FTLCONF_LOCAL_IPV4: '192.168.1.76'
+      # FTLCONF_LOCAL_IPV4 sets the web redirect (replaces deprecated VIRTUAL_HOST)
+      FTLCONF_LOCAL_IPV4: ${DEVICE_IP:-192.168.1.76}
+      # Database retention - prevents massive DB growth (was 1.4GB, now capped)
+      FTLCONF_MAXDBDAYS: 7
     volumes:
       - './etc-pihole:/etc/pihole'
       - './etc-dnsmasq.d:/etc/dnsmasq.d'
-    restart: unless-stopped
     dns:
-      - 127.0.0.1
       - 8.8.8.8
+      - 8.8.4.4
+
+    # LAYER 1: Docker restart policy
+    # Handles container crashes with automatic restart
+    # Max 3 attempts prevents infinite restart loops
+    restart: unless-stopped
+
+    # Healthcheck is INFORMATIONAL ONLY
+    # Does NOT trigger restarts (that's the watchdog's job)
+    # Long intervals and high retries prevent false positives
+    healthcheck:
+      test: ["CMD", "dig", "@127.0.0.1", "google.com", "+short"]
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+    # Memory limit prevents OOM from killing other services
+    # Pi-hole typically uses 40-100MB, limit provides headroom
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M

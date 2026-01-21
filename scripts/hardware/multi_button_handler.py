@@ -25,7 +25,7 @@ class MultiButtonHandler:
     def __init__(self):
         self.device_path = None
         # URLs for different services
-        self.dashboard_url = "http://localhost:3002/d/a342df05-226d-4233-b5e7-f46688260197/reterminal-system-vitals?orgId=1&refresh=5s"
+        self.dashboard_url = "http://localhost:3002/d/a342df05-226d-4233-b5e7-f46688260197/reterminal-system-vitals?kiosk=true&refresh=5s"
         self.homeassistant_url = "http://localhost:8123/lovelace"
         self.pihole_url = "http://localhost:8080/admin"
         self.homepage_url = "http://192.168.1.76:3000"
@@ -74,114 +74,28 @@ class MultiButtonHandler:
             logger.error(f"Error getting CLI password: {e}")
         return None
     
-    def open_pihole_auto_login(self):
-        """Open Pi-hole dashboard with auto-login using CLI password"""
+    def open_browser_kiosk(self, url, service_name):
+        """Open a URL in kiosk mode"""
         try:
-            logger.info("Opening Pi-hole Dashboard with auto-login")
-            
-            # Get the current CLI password
-            cli_pw = self.get_cli_password()
-            if not cli_pw:
-                logger.error("Could not get CLI password, falling back to regular login")
-                self.open_pihole_kiosk()
-                return
-            
-            # Create an HTML page that will auto-login using the CLI password
-            html_content = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Pi-hole Auto Login</title>
-                <style>
-                    body {{ 
-                        font-family: Arial, sans-serif; 
-                        text-align: center; 
-                        margin-top: 50px; 
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        color: white;
-                    }}
-                    .container {{
-                        background: rgba(255,255,255,0.1);
-                        padding: 30px;
-                        border-radius: 15px;
-                        backdrop-filter: blur(10px);
-                        max-width: 400px;
-                        margin: 0 auto;
-                        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-                    }}
-                    .spinner {{
-                        border: 4px solid rgba(255,255,255,0.3);
-                        border-radius: 50%;
-                        border-top: 4px solid #fff;
-                        width: 40px;
-                        height: 40px;
-                        animation: spin 1s linear infinite;
-                        margin: 20px auto;
-                    }}
-                    @keyframes spin {{
-                        0% {{ transform: rotate(0deg); }}
-                        100% {{ transform: rotate(360deg); }}
-                    }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h2>🛡️ Pi-hole Admin</h2>
-                    <div class="spinner"></div>
-                    <p>Authenticating automatically...</p>
-                    <p><small>Redirecting to dashboard</small></p>
-                </div>
-                
-                <script>
-                    // Auto-login function
-                    function autoLogin() {{
-                        fetch('http://localhost:8080/admin/api.php?login&cli_pw=' + encodeURIComponent('{cli_pw}'))
-                        .then(response => response.json())
-                        .then(data => {{
-                            if (data && data.session_id) {{
-                                // Login successful, redirect to main admin page
-                                window.location.replace('http://localhost:8080/admin/index.php?session_id=' + data.session_id);
-                            }} else {{
-                                // Fallback to regular login page
-                                window.location.replace('http://localhost:8080/admin');
-                            }}
-                        }})
-                        .catch(error => {{
-                            console.log('Auto-login failed, redirecting to login page:', error);
-                            window.location.replace('http://localhost:8080/admin');
-                        }});
-                    }}
-                    
-                    // Start auto-login after a brief delay
-                    setTimeout(autoLogin, 1500);
-                    
-                    // Fallback redirect in case API fails
-                    setTimeout(function() {{
-                        if (window.location.href.includes('pihole_auto.html')) {{
-                            window.location.replace('http://localhost:8080/admin');
-                        }}
-                    }}, 8000);
-                </script>
-            </body>
-            </html>
-            """
-            
-            temp_html = "/tmp/pihole_auto.html"
-            with open(temp_html, 'w') as f:
-                f.write(html_content)
+            logger.info(f"Opening {service_name} in kiosk mode: {url}")
             
             browsers = [
-                ["chromium-browser", "--kiosk", "--disable-infobars", "--disable-session-crashed-bubble", "--disable-restore-session-state", f"file://{temp_html}"],
-                ["chromium", "--kiosk", "--disable-infobars", "--disable-session-crashed-bubble", "--disable-restore-session-state", f"file://{temp_html}"],
-                ["chromium-browser", "--start-fullscreen", "--disable-infobars", f"file://{temp_html}"],
-                ["chromium", "--start-fullscreen", "--disable-infobars", f"file://{temp_html}"],
-                ["firefox", "--kiosk", f"file://{temp_html}"],
+                ["chromium-browser", "--kiosk", "--disable-infobars", "--disable-session-crashed-bubble", 
+                 "--disable-restore-session-state", "--disable-translate", "--no-first-run", url],
+                ["chromium", "--kiosk", "--disable-infobars", "--disable-session-crashed-bubble", 
+                 "--disable-restore-session-state", "--disable-translate", "--no-first-run", url],
+                ["firefox", "--kiosk", url]
             ]
             
             for browser_cmd in browsers:
                 try:
+                    # Kill any existing browser processes
+                    subprocess.run(["pkill", "-f", browser_cmd[0]], stderr=subprocess.DEVNULL)
+                    time.sleep(1)  # Wait for browser to close
+                    
+                    # Start new browser in kiosk mode
                     subprocess.Popen(browser_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    logger.info(f"Pi-hole auto-login opened in kiosk mode with: {browser_cmd[0]}")
+                    logger.info(f"{service_name} opened in kiosk mode with: {browser_cmd[0]}")
                     return
                 except FileNotFoundError:
                     continue
@@ -189,62 +103,8 @@ class MultiButtonHandler:
             logger.error("No suitable browser found")
             
         except Exception as e:
-            logger.error(f"Error opening Pi-hole with auto-login: {e}")
-            # Fallback to regular kiosk mode
-            self.open_pihole_kiosk()
-    
-    def open_pihole_kiosk(self):
-        """Open Pi-hole dashboard in kiosk mode (fallback)"""
-        try:
-            logger.info("Opening Pi-hole Dashboard in kiosk mode")
-            
-            browsers = [
-                ["chromium-browser", "--kiosk", "--disable-infobars", "--disable-session-crashed-bubble", "--disable-restore-session-state", self.pihole_url],
-                ["chromium", "--kiosk", "--disable-infobars", "--disable-session-crashed-bubble", "--disable-restore-session-state", self.pihole_url],
-                ["chromium-browser", "--start-fullscreen", "--disable-infobars", self.pihole_url],
-                ["chromium", "--start-fullscreen", "--disable-infobars", self.pihole_url],
-                ["firefox", "--kiosk", self.pihole_url],
-            ]
-            
-            for browser_cmd in browsers:
-                try:
-                    subprocess.Popen(browser_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    logger.info(f"Pi-hole dashboard opened in kiosk mode with: {browser_cmd[0]}")
-                    return
-                except FileNotFoundError:
-                    continue
-                    
-            logger.error("No suitable browser found")
-            
-        except Exception as e:
-            logger.error(f"Error opening Pi-hole dashboard: {e}")
-    
-    def open_url(self, url, service_name):
-        """Open a URL in the default browser"""
-        try:
-            logger.info(f"Opening {service_name}: {url}")
-            
-            browsers = [
-                ["chromium-browser", "--start-maximized", "--disable-infobars", url],
-                ["chromium", "--start-maximized", "--disable-infobars", url],
-                ["firefox", url],
-                ["x-www-browser", url],
-                ["xdg-open", url]
-            ]
-            
-            for browser_cmd in browsers:
-                try:
-                    subprocess.Popen(browser_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    logger.info(f"{service_name} opened with: {browser_cmd[0]}")
-                    return
-                except FileNotFoundError:
-                    continue
-                    
-            logger.error("No suitable browser found")
-            
-        except Exception as e:
-            logger.error(f"Error opening {service_name}: {e}")
-    
+            logger.error(f"Error opening {service_name} in kiosk mode: {e}")
+
     def run(self):
         """Main loop to monitor button presses"""
         if not self.device_path:
@@ -255,9 +115,12 @@ class MultiButtonHandler:
         logger.info("Button mappings:")
         logger.info("  F1 (leftmost): System Vitals Dashboard") 
         logger.info("  F2 (second): Home Assistant Overview")
-        logger.info("  F3 (third): Pi-hole Dashboard (auto-login kiosk)")
+        logger.info("  F3 (third): Pi-hole Dashboard")
         logger.info("  O (green circle): Homepage")
         logger.info("Press Ctrl+C to stop")
+        
+        # Open System Vitals dashboard on startup
+        self.open_browser_kiosk(self.dashboard_url, "System Vitals Dashboard")
         
         try:
             device = InputDevice(self.device_path)
@@ -275,13 +138,13 @@ class MultiButtonHandler:
                         # Only respond to key press events (value 1), not release (value 0)
                         if key_value == 1:
                             if key_code == '30':  # F1 button (key1 in Seeed code)
-                                self.open_url(self.dashboard_url, "System Vitals Dashboard")
+                                self.open_browser_kiosk(self.dashboard_url, "System Vitals Dashboard")
                             elif key_code == '31':  # F2 button (key2 in Seeed code)
-                                self.open_url(self.homeassistant_url, "Home Assistant Overview")
+                                self.open_browser_kiosk(self.homeassistant_url, "Home Assistant Overview")
                             elif key_code == '32':  # F3 button (key3 in Seeed code)
-                                self.open_pihole_auto_login()
+                                self.open_browser_kiosk(self.pihole_url, "Pi-hole Dashboard")
                             elif key_code == '33':  # O button (key4 in Seeed code) 
-                                self.open_url(self.homepage_url, "Homepage")
+                                self.open_browser_kiosk(self.homepage_url, "Homepage")
                             else:
                                 logger.debug(f"Unhandled key code: {key_code}")
                             

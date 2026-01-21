@@ -9,4 +9,4 @@ services:
       - ./config:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - TZ=Europe/London
+      - TZ=${TZ:-Asia/Hong_Kong}

@@ -1,0 +1,17 @@
+[Unit]
+Description=Pi-hole Smart Watchdog - Runs every 2 minutes
+Documentation=file:///home/massey/rpi-smart-home-project/docs/WATCHDOG_SYSTEM.md
+
+[Timer]
+# Run 1 minute after boot, then every 2 minutes
+OnBootSec=1min
+OnUnitActiveSec=2min
+
+# Add randomized delay (0-30s) to prevent thundering herd
+RandomizedDelaySec=30
+
+# Persist timer across reboots
+Persistent=true
+
+[Install]
+WantedBy=timers.target

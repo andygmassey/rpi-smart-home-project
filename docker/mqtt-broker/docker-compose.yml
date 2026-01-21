@@ -1,6 +1,6 @@
 services:
   mosquitto:
-    image: eclipse-mosquitto:latest
+    image: eclipse-mosquitto:2.0.18
     container_name: mosquitto
     restart: unless-stopped
     ports:
@@ -11,4 +11,4 @@ services:
       - ./data:/mosquitto/data
       - ./logs:/mosquitto/log
     environment:
-      - TZ=Europe/London
+      - TZ=${TZ:-Asia/Hong_Kong}

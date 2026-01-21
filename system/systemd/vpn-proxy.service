@@ -1,0 +1,18 @@
+[Unit]
+Description=SOCKS5 Proxy for VPN Traffic
+After=unlocator-vpn.service
+Requires=unlocator-vpn.service
+BindsTo=unlocator-vpn.service
+
+[Service]
+Type=simple
+ExecStartPre=/bin/bash -c 'until ip addr show tun0 2>/dev/null | grep -q "inet "; do sleep 1; done'
+ExecStart=/bin/bash -c 'VPN_IP=$(ip -4 addr show tun0 | grep -oP "(?<=inet )\d+\.\d+\.\d+\.\d+") && exec /usr/local/bin/microsocks -i 0.0.0.0 -p 1080 -b $VPN_IP'
+Restart=on-failure
+RestartSec=3
+
+User=nobody
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target

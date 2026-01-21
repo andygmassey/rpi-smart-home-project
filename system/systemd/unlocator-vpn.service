@@ -1,0 +1,19 @@
+[Unit]
+Description=Unlocator VPN (OpenVPN)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+ExecStart=/usr/sbin/openvpn --config /etc/openvpn/unlocator/client.ovpn
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+# Security hardening
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/etc/openvpn/unlocator /run
+
+[Install]
+WantedBy=multi-user.target

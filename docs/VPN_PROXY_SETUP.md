@@ -60,53 +60,48 @@ vpn-proxy-ctl.sh test
 
 ## Mac Configuration
 
-### Option 1: Terminal / Claude Code
+### Option 1: Claude Code via Privoxy (Recommended)
 
-Add to your `~/.zshrc` or `~/.bashrc`:
+Node.js applications like Claude Code don't respect `ALL_PROXY` or `SOCKS5` environment variables directly. The solution is to use Privoxy as an HTTP-to-SOCKS bridge.
 
+**Install Privoxy:**
 ```bash
-# VPN Proxy for specific commands
-alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
-alias vpn-wget='wget -e "use_proxy=yes" -e "all_proxy=socks5://192.168.1.76:1080"'
-
-# For Claude Code - route all traffic through VPN
-alias claude-vpn='ALL_PROXY=socks5h://192.168.1.76:1080 claude'
+brew install privoxy
 ```
 
-Then run:
+**Configure Privoxy** (`/opt/homebrew/etc/privoxy/config`):
+```
+# Forward all traffic through reTerminal SOCKS5 proxy
+listen-address  127.0.0.1:8118
+forward-socks5  /  192.168.1.76:1080  .
+```
+
+**Start Privoxy:**
+```bash
+brew services start privoxy
+```
+
+**Add alias to `~/.zshrc`:**
+```bash
+# Route Claude Code traffic through VPN
+alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
+
+# VPN Proxy for curl (direct SOCKS5)
+alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
+```
+
+**Test it:**
 ```bash
 source ~/.zshrc
 
-# Test it
-vpn-curl https://api.ipify.org  # Should show VPN IP
+# Test direct SOCKS5 (should show VPN IP)
+vpn-curl https://api.ipify.org
 
 # Run Claude Code through VPN
 claude-vpn
 ```
 
-### Option 2: System-wide Proxy for Specific Apps
-
-Create a shell wrapper script `~/bin/via-vpn`:
-
-```bash
-#!/bin/bash
-# Run any command through VPN proxy
-ALL_PROXY=socks5h://192.168.1.76:1080 \
-HTTPS_PROXY=socks5h://192.168.1.76:1080 \
-HTTP_PROXY=socks5h://192.168.1.76:1080 \
-"$@"
-```
-
-```bash
-chmod +x ~/bin/via-vpn
-
-# Usage
-via-vpn curl https://api.ipify.org
-via-vpn claude
-via-vpn any-command
-```
-
-### Option 3: Browser (Safari/Chrome) for claude.ai
+### Option 2: Browser (Safari/Chrome) for claude.ai
 
 **Chrome with Proxy Extension:**
 1. Install "Proxy SwitchyOmega" extension
@@ -121,7 +116,7 @@ via-vpn any-command
 3. Server: 192.168.1.76, Port: 1080
 4. Note: This affects ALL Safari traffic
 
-### Option 4: Per-Application Proxy (macOS)
+### Option 3: Per-Application Proxy (macOS)
 
 For apps that respect system proxy but you want per-app control:
 
@@ -185,6 +180,19 @@ The proxy adds a hop. For latency-sensitive apps, consider:
 - Using UDP config (already configured)
 - Choosing a closer Unlocator server
 
+### Privoxy issues (Mac)
+```bash
+# Check if Privoxy is running
+brew services list | grep privoxy
+
+# Restart Privoxy
+brew services restart privoxy
+
+# Test Privoxy is forwarding correctly
+curl -x http://127.0.0.1:8118 https://api.ipify.org
+# Should show VPN IP (89.187.181.130)
+```
+
 ---
 
 ## Service Management
@@ -211,3 +219,10 @@ ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
 | `/etc/systemd/system/vpn-proxy.service` | Proxy systemd service |
 | `/usr/local/bin/vpn-proxy-ctl.sh` | Control script |
 | `/usr/local/bin/microsocks` | SOCKS5 proxy binary |
+
+## Files on Mac
+
+| File | Purpose |
+|------|---------|
+| `/opt/homebrew/etc/privoxy/config` | Privoxy HTTP-to-SOCKS config |
+| `~/.zshrc` | Shell aliases (`claude-vpn`, `vpn-curl`) |

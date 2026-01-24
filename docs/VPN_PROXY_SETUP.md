@@ -9,10 +9,11 @@ Route specific application traffic through Unlocator VPN via the reTerminal.
 │   Your Mac      │      │          reTerminal                 │
 │                 │      │                                     │
 │  Claude Code ───┼──────┼──► SOCKS5 Proxy ──► VPN Tunnel ────┼──► Unlocator
-│  Terminal       │ :1080│   (microsocks)    (OpenVPN)        │    Chicago
+│  (via Privoxy)  │ :1080│   (microsocks)    (OpenVPN)        │    Chicago
 │                 │      │                                     │
-│  Browser ───────┼──────┼──► Same proxy                      │
-│  (claude.ai)    │      │                                     │
+│  Claude App ────┼──────┼──► Same proxy (--proxy-server)     │
+│  Chrome ────────┼──────┼──► Same proxy (--proxy-server)     │
+│                 │      │                                     │
 │                 │      │   Kill Switch: Proxy bound to VPN  │
 │  Other apps ────┼──────┼──► Direct to Internet (no proxy)   │
 │                 │      │   IP - if VPN drops, proxy fails   │
@@ -101,9 +102,35 @@ vpn-curl https://api.ipify.org
 claude-vpn
 ```
 
-### Option 2: Browser (Safari/Chrome) for claude.ai
+### Option 2: Claude Desktop App & Chrome (Recommended for GUI apps)
 
-**Chrome with Proxy Extension:**
+Electron-based apps (Claude desktop, Chrome) support the `--proxy-server` flag for direct SOCKS5 proxy.
+
+**Add aliases to `~/.zshrc`:**
+```bash
+# Claude desktop app via VPN
+alias claude-app-vpn='/Applications/Claude.app/Contents/MacOS/Claude --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+
+# Chrome via VPN (for claude.ai web)
+alias chrome-vpn='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+```
+
+**Usage:**
+```bash
+source ~/.zshrc
+
+# Launch Claude desktop through VPN
+claude-app-vpn
+
+# Launch Chrome through VPN
+chrome-vpn
+```
+
+**Note:** These launch separate instances with VPN routing. Your normal Chrome/Claude sessions remain unaffected.
+
+### Option 3: Browser Extensions
+
+**Chrome with Proxy SwitchyOmega:**
 1. Install "Proxy SwitchyOmega" extension
 2. Create new profile "VPN"
 3. Protocol: SOCKS5, Server: 192.168.1.76, Port: 1080
@@ -116,7 +143,7 @@ claude-vpn
 3. Server: 192.168.1.76, Port: 1080
 4. Note: This affects ALL Safari traffic
 
-### Option 3: Per-Application Proxy (macOS)
+### Option 4: Per-Application Proxy (macOS)
 
 For apps that respect system proxy but you want per-app control:
 
@@ -225,4 +252,22 @@ ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
 | File | Purpose |
 |------|---------|
 | `/opt/homebrew/etc/privoxy/config` | Privoxy HTTP-to-SOCKS config |
-| `~/.zshrc` | Shell aliases (`claude-vpn`, `vpn-curl`) |
+| `~/.zshrc` | Shell aliases (see below) |
+
+### Shell Aliases Summary
+
+Add all of these to `~/.zshrc`:
+
+```bash
+# Claude Code (terminal) - via Privoxy
+alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
+
+# Claude desktop app - direct SOCKS5
+alias claude-app-vpn='/Applications/Claude.app/Contents/MacOS/Claude --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+
+# Chrome browser - direct SOCKS5
+alias chrome-vpn='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+
+# curl via VPN
+alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
+```

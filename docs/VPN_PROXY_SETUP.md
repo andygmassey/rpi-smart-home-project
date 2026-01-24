@@ -109,10 +109,10 @@ Electron-based apps (Claude desktop, Chrome) support the `--proxy-server` flag f
 **Add aliases to `~/.zshrc`:**
 ```bash
 # Claude desktop app via VPN
-alias claude-app-vpn='/Applications/Claude.app/Contents/MacOS/Claude --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
 
 # Chrome via VPN (for claude.ai web)
-alias chrome-vpn='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://192.168.1.76:1080"'
 ```
 
 **Usage:**
@@ -262,11 +262,11 @@ Add all of these to `~/.zshrc`:
 # Claude Code (terminal) - via Privoxy
 alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
 
-# Claude desktop app - direct SOCKS5
-alias claude-app-vpn='/Applications/Claude.app/Contents/MacOS/Claude --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+# Claude desktop app - via macOS Launch Services
+alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
 
-# Chrome browser - direct SOCKS5
-alias chrome-vpn='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --proxy-server="socks5://192.168.1.76:1080" &>/dev/null &'
+# Chrome browser - via macOS Launch Services
+alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://192.168.1.76:1080"'
 
 # curl via VPN
 alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'

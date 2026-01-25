@@ -38,6 +38,24 @@ Kill Switch: ENABLED
 External IP: 89.187.181.130
 ```
 
+## Automatic Health Monitoring
+
+A watchdog runs every 2 minutes to ensure the VPN proxy stays healthy:
+- Checks VPN connection (tun0 interface)
+- Checks proxy is listening on port 1080
+- Tests end-to-end connectivity through proxy
+- Auto-restarts if issues detected (with cooldowns)
+
+**Check watchdog logs:**
+```bash
+ssh massey@192.168.1.76 "tail -50 /home/massey/vpn-proxy-watchdog.log"
+```
+
+**Watchdog status:**
+```bash
+ssh massey@192.168.1.76 "systemctl status vpn-proxy-watchdog.timer"
+```
+
 ## Control Commands (on reTerminal)
 
 ```bash
@@ -244,8 +262,12 @@ ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
 | `/etc/openvpn/unlocator/auth.txt` | VPN credentials (root only) |
 | `/etc/systemd/system/unlocator-vpn.service` | VPN systemd service |
 | `/etc/systemd/system/vpn-proxy.service` | Proxy systemd service |
+| `/etc/systemd/system/vpn-proxy-watchdog.service` | Watchdog service |
+| `/etc/systemd/system/vpn-proxy-watchdog.timer` | Watchdog timer (every 2 min) |
 | `/usr/local/bin/vpn-proxy-ctl.sh` | Control script |
+| `/usr/local/bin/vpn-proxy-watchdog.sh` | Health check script |
 | `/usr/local/bin/microsocks` | SOCKS5 proxy binary |
+| `/home/massey/vpn-proxy-watchdog.log` | Watchdog log file |
 
 ## Files on Mac
 

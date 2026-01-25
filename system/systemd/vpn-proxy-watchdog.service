@@ -1,0 +1,12 @@
+[Unit]
+Description=VPN Proxy Watchdog - Health Check
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/bin/vpn-proxy-watchdog.sh
+StandardOutput=journal
+StandardError=journal
+Restart=no

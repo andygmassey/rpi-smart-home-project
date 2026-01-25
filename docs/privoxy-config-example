@@ -1,0 +1,17 @@
+# Privoxy config for VPN proxy forwarding
+# Location: /opt/homebrew/etc/privoxy/config (macOS)
+
+confdir /opt/homebrew/etc/privoxy
+templdir /opt/homebrew/etc/privoxy/templates
+
+# Listen on localhost only
+listen-address  127.0.0.1:8118
+
+# Forward all traffic through reTerminal SOCKS5 proxy
+forward-socks5  /  192.168.1.76:1080  .
+
+# Disable filtering - we just want proxying
+toggle 1
+enable-remote-toggle 0
+enable-edit-actions 0
+enforce-blocks 0

@@ -36,7 +36,7 @@ A smart home automation system running on a SeeedStudio reTerminal (Raspberry Pi
 rpi-smart-home-project/
 ├── docker/                     # Docker Compose services
 │   ├── grafana-influx/         # Monitoring stack (Grafana + InfluxDB)
-│   ├── pihole/                 # DNS filtering (currently disabled)
+│   ├── pihole/                 # DNS filtering (Unlocator SmartDNS)
 │   ├── homepage/               # Dashboard aggregator
 │   ├── uptime-kuma/            # Service availability monitoring
 │   ├── mqtt-broker/            # Mosquitto MQTT broker
@@ -95,6 +95,7 @@ ls ~/backups/
 | Uptime Kuma | 3001 | ~/uptime-kuma | Running |
 | MQTT | 1883 | ~/mqtt-broker | Running |
 | Pi-hole | 80 | ~/pihole-docker | Running (Watchdog) |
+| Pi-hole Webhook | 8888 | ~/pihole-webhook | Running |
 
 ## Common Commands
 
@@ -163,6 +164,16 @@ rm ~/.pihole-watchdog-state
 ```
 
 See `docs/WATCHDOG_SYSTEM.md` for full documentation.
+
+### Pi-hole Webhook (Temporary Pause)
+
+Temporarily pause Pi-hole blocking via HTTP request when a link is being blocked too aggressively.
+
+**Safari Bookmark**: `http://192.168.1.76:8888/?duration=10`
+
+- Pauses Pi-hole for specified seconds (default: 10, max: 86400)
+- Automatically re-enables after timeout
+- Service: `pihole-webhook.service`
 
 ## Safety Notes
 

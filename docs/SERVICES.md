@@ -35,6 +35,15 @@ This document describes all the Docker services running in the smart home system
 - **Purpose**: Network-wide ad blocking and DNS
 - **Config**: `docker/pihole/`
 - **Access**: http://localhost/admin
+- **Upstream DNS**: Unlocator SmartDNS (185.37.37.37, 185.37.39.39)
+
+#### Pi-hole Webhook (`pihole-webhook`)
+- **Port**: 8888
+- **Purpose**: Temporarily pause Pi-hole blocking via HTTP request
+- **Config**: `scripts/system/pihole-webhook.py`
+- **Service**: `system/systemd/pihole-webhook.service`
+- **Usage**: `http://192.168.1.76:8888/?duration=10`
+- **Safari Bookmark**: Add the URL above to quickly pause blocking for 10 seconds when visiting a link that Pi-hole is blocking too aggressively
 
 #### Uptime Kuma (`uptime-kuma`)
 - **Image**: `louislam/uptime-kuma:latest`

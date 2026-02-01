@@ -276,7 +276,9 @@ ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
 | `/opt/homebrew/etc/privoxy/config` | Privoxy HTTP-to-SOCKS config |
 | `~/.zshrc` | Shell aliases (see below) |
 | `~/bin/notebooklm-vpn` | NotebookLM launcher script |
-| `~/Applications/NotebookLM VPN.app` | NotebookLM macOS app (clickable) |
+| `/Applications/NotebookLM VPN.app` | NotebookLM macOS app (clickable) |
+| `~/bin/antigravity-vpn` | Antigravity launcher script |
+| `/Applications/Antigravity VPN.app` | Antigravity macOS app (clickable) |
 
 ### Shell Aliases Summary
 
@@ -288,6 +290,9 @@ alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:
 
 # NotebookLM (Chrome app mode) - via Privoxy
 alias notebooklm-vpn='~/bin/notebooklm-vpn'
+
+# Google Antigravity IDE - via Privoxy
+alias antigravity-vpn='~/bin/antigravity-vpn'
 
 # Claude desktop app - via macOS Launch Services
 alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
@@ -339,3 +344,43 @@ Privoxy (127.0.0.1:8118) → reTerminal SOCKS5 (:1080) → OpenVPN → Internet
 - First launch requires Google sign-in (fresh profile)
 - Uses Privoxy instead of direct SOCKS5 (better Chrome compatibility)
 - Works with HK-based Google accounts (tested Feb 2026)
+
+---
+
+## Antigravity VPN App
+
+Google Antigravity is an AI-powered IDE (Electron-based, fork of VS Code). This launcher routes all traffic through the VPN.
+
+### Usage
+
+**Option 1 - Click the app:**
+- Open `/Applications/Antigravity VPN.app` (or find via Spotlight)
+
+**Option 2 - Terminal:**
+```bash
+antigravity-vpn
+```
+
+### How it works
+
+```
+Antigravity VPN app
+       │
+       ▼
+Antigravity.app (Electron)
+       │ HTTP_PROXY / HTTPS_PROXY env vars
+       ▼
+Privoxy (127.0.0.1:8118) → reTerminal SOCKS5 (:1080) → OpenVPN → Internet
+```
+
+### Features
+
+- **Full app VPN routing**: All Antigravity traffic goes through VPN
+- **Pre-flight checks**: Alerts if Privoxy or VPN proxy is down
+- **Uses existing app**: Launches the installed Antigravity.app with proxy settings
+
+### Notes
+
+- Uses HTTP_PROXY/HTTPS_PROXY environment variables (standard for Electron apps)
+- Icon copied from original Antigravity app
+- Added Feb 2026

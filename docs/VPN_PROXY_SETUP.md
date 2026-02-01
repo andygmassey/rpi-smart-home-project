@@ -275,6 +275,8 @@ ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
 |------|---------|
 | `/opt/homebrew/etc/privoxy/config` | Privoxy HTTP-to-SOCKS config |
 | `~/.zshrc` | Shell aliases (see below) |
+| `~/bin/notebooklm-vpn` | NotebookLM launcher script |
+| `~/Applications/NotebookLM VPN.app` | NotebookLM macOS app (clickable) |
 
 ### Shell Aliases Summary
 
@@ -283,6 +285,9 @@ Add all of these to `~/.zshrc`:
 ```bash
 # Claude Code (terminal) - via Privoxy
 alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
+
+# NotebookLM (Chrome app mode) - via Privoxy
+alias notebooklm-vpn='~/bin/notebooklm-vpn'
 
 # Claude desktop app - via macOS Launch Services
 alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
@@ -293,3 +298,44 @@ alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://192.16
 # curl via VPN
 alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
 ```
+
+---
+
+## NotebookLM VPN App
+
+Google NotebookLM is web-only, but we've created an app-like experience that routes through the VPN.
+
+### Usage
+
+**Option 1 - Click the app:**
+- Open `~/Applications/NotebookLM VPN.app` (or find via Spotlight)
+
+**Option 2 - Terminal:**
+```bash
+notebooklm-vpn
+```
+
+### How it works
+
+```
+NotebookLM VPN app
+       │
+       ▼
+Chrome (--proxy-server=http://127.0.0.1:8118)
+       │
+       ▼
+Privoxy (127.0.0.1:8118) → reTerminal SOCKS5 (:1080) → OpenVPN → Internet
+```
+
+### Features
+
+- **Isolated Chrome profile**: Uses `~/.config/chrome-vpn-profile` - separate from your main Chrome
+- **App-like window**: Opens in `--app` mode (no browser chrome)
+- **Pre-flight checks**: Alerts if Privoxy or VPN proxy is down
+- **Persistent sessions**: Sign in once, stays logged in
+
+### Notes
+
+- First launch requires Google sign-in (fresh profile)
+- Uses Privoxy instead of direct SOCKS5 (better Chrome compatibility)
+- Works with HK-based Google accounts (tested Feb 2026)

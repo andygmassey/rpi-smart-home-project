@@ -108,3 +108,16 @@ dhcpcd.conf
 *Private*
 *PRIVATE*
 *SECRET*
+
+# Pi-hole runtime data (NEVER commit these)
+docker/pihole/etc-pihole/cli_pw
+docker/pihole/etc-pihole/dhcp.leases
+docker/pihole/etc-pihole/*.db
+docker/pihole/etc-pihole/*.db-*
+docker/pihole/etc-pihole/pihole-FTL.db*
+docker/pihole/etc-pihole/config_backups/
+docker/pihole/etc-pihole/gravity_backups/
+docker/pihole/etc-pihole/listsCache/
+docker/pihole/etc-pihole/migration_backup/
+docker/pihole/etc-pihole/hosts/custom.list
+docker/pihole/etc-pihole/versions

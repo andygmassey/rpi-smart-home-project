@@ -1,95 +1,95 @@
 - Control Panel:
   - System Reboot:
-      href: http://192.168.1.76:5000/action/reboot
+      href: http://192.168.1.100:5000/action/reboot
       description: ⚠️ Reboot Raspberry Pi
       icon: mdi-restart-alert
-      ping: http://192.168.1.76:44444:5000
+      ping: http://192.168.1.100:44444:5000
       widget:
         type: customapi
-        url: http://192.168.1.76:5000/action/reboot
+        url: http://192.168.1.100:5000/action/reboot
         method: POST
 
   - Pi-hole Control:
-      href: http://192.168.1.76:8080/admin
+      href: http://192.168.1.100:8080/admin
       description: 🛡️ Toggle Ad Blocking
       icon: pi-hole
-      ping: http://192.168.1.76:44444:8080
+      ping: http://192.168.1.100:44444:8080
 
   - Living Room Lights:
-      href: http://192.168.1.76:8123/lovelace
+      href: http://192.168.1.100:8123/lovelace
       description: 💡 Turn Off Lights
       icon: mdi-lightbulb-off
-      ping: http://192.168.1.76:44444:8123
+      ping: http://192.168.1.100:44444:8123
 
   - Getflix IP Update:
-      href: http://192.168.1.76:5002/action/getflix/update-ip
+      href: http://192.168.1.100:5002/action/getflix/update-ip
       description: 🌐 Update SmartDNS IP (Manual)
       icon: mdi-ip-network
-      ping: http://192.168.1.76:44444:5002
+      ping: http://192.168.1.100:44444:5002
       widget:
         type: customapi
-        url: http://192.168.1.76:5002/action/getflix/update-ip
+        url: http://192.168.1.100:5002/action/getflix/update-ip
         method: POST
 
   - Incremental Backup:
-      href: http://192.168.1.76:5001/launch_borg.html
+      href: http://192.168.1.100:5001/launch_borg.html
       description: 💾 Run Borg Incremental Backup
       icon: mdi-backup-restore
       target: _blank
 
   - Control Panel:
-      href: http://192.168.1.76:5001
+      href: http://192.168.1.100:5001
       description: 🎛️ Interactive Control Panel
       icon: mdi-view-dashboard-variant
-      ping: http://192.168.1.76:44444:5001
+      ping: http://192.168.1.100:44444:5001
 
 - Smart Home:
   - Home Assistant:
-      href: http://192.168.1.76:8123/lovelace
+      href: http://192.168.1.100:8123/lovelace
       description: Smart Home Automation Hub
       icon: home-assistant
-      ping: http://192.168.1.76:44444:8123
+      ping: http://192.168.1.100:44444:8123
 
   - System Dashboard:
-      href: http://192.168.1.76:3002/d/a342df05-226d-4233-b5e7-f46688260197/reterminal-system-vitals
+      href: http://192.168.1.100:3002/d/a342df05-226d-4233-b5e7-f46688260197/reterminal-system-vitals
       description: RPi System Vitals & Monitoring
       icon: mdi-chart-line
-      ping: http://192.168.1.76:44444:3002
+      ping: http://192.168.1.100:44444:3002
 
   - MQTT Broker:
       href: #
       description: IoT Message Broker (Port 1883)
       icon: mdi-wifi-settings
-      ping: http://192.168.1.76:44444:1883
+      ping: http://192.168.1.100:44444:1883
 
 - Network & Security:
   - Pi-hole:
-      href: http://192.168.1.76:8080/admin
+      href: http://192.168.1.100:8080/admin
       description: Network Ad Blocker & DNS
       icon: pi-hole
-      ping: http://192.168.1.76:44444:8080
+      ping: http://192.168.1.100:44444:8080
 
   - Fing Network Agent:
-      href: http://192.168.1.76:44444
+      href: http://192.168.1.100:44444
       description: 🔍 Official Fing Network Agent (Port 44444)
       icon: mdi-network-outline
-      ping: http://192.168.1.76:44444
+      ping: http://192.168.1.100:44444
 
 - Monitoring & Data:
   - Uptime Kuma:
-      href: http://192.168.1.76:3001
+      href: http://192.168.1.100:3001
       description: Service Uptime Monitoring
       icon: uptime-kuma
-      ping: http://192.168.1.76:44444:3001
+      ping: http://192.168.1.100:44444:3001
 
   - Grafana:
-      href: http://192.168.1.76:3002
+      href: http://192.168.1.100:3002
       description: Data Visualization & Analytics
       icon: grafana
-      ping: http://192.168.1.76:44444:3002
+      ping: http://192.168.1.100:44444:3002
 
   - InfluxDB:
-      href: http://192.168.1.76:8086
+      href: http://192.168.1.100:8086
       description: Time Series Database
       icon: mdi-database-clock
-      ping: http://192.168.1.76:44444:8086
+      ping: http://192.168.1.100:44444:8086

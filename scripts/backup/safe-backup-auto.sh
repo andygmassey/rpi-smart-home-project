@@ -1,6 +1,6 @@
 #!/bin/bash
 # Automated safe backup (no prompts)
-LOG_FILE="/home/massey/backup-$(date +%Y%m%d-%H%M).log"
+LOG_FILE="$HOME/backup-$(date +%Y%m%d-%H%M).log"
 
 {
     echo "=== AUTOMATED SAFE BACKUP STARTED: $(date) ==="
@@ -13,17 +13,17 @@ LOG_FILE="/home/massey/backup-$(date +%Y%m%d-%H%M).log"
     sleep 15
     
     echo "3/4 Starting backup (will take 20-40 minutes)..."
-    /home/massey/create-goldmaster-backup-compressed.sh
+    $HOME/create-goldmaster-backup-compressed.sh
     
     echo ""
     echo "4/4 Restarting services..."
-    cd /home/massey/homepage-dashboard && docker-compose up -d
-    cd /home/massey/grafana-influx && docker-compose up -d  
-    cd /home/massey/uptime-kuma && docker-compose up -d
+    cd $HOME/homepage-dashboard && docker-compose up -d
+    cd $HOME/grafana-influx && docker-compose up -d  
+    cd $HOME/uptime-kuma && docker-compose up -d
     
     echo ""
     echo "=== BACKUP COMPLETE: $(date) ==="
-    echo "Check /media/massey/RPI-BACKUP/ for backup file"
+    echo "Check /media/$USER/RPI-BACKUP/ for backup file"
     
 } >> "$LOG_FILE" 2>&1
 

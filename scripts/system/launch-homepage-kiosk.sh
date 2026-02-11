@@ -32,4 +32,4 @@ chromium-browser \
     --start-maximized \
     http://localhost:3000 &
 
-echo "Kiosk mode launched at $(date)" >> /home/massey/kiosk.log
+echo "Kiosk mode launched at $(date)" >> $HOME/kiosk.log

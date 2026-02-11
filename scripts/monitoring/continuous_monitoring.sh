@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Continuous monitoring script - runs every 30 minutes for 24 hours
-LOG_FILE="/home/massey/continuous_monitoring.log"
+LOG_FILE="$HOME/continuous_monitoring.log"
 COUNTER=0
 MAX_ITERATIONS=48  # 24 hours * 2 (every 30 minutes)
 
@@ -31,7 +31,7 @@ done
 echo "[$(date)] 24-hour monitoring complete. Generating final report..." >> "$LOG_FILE"
 
 # Generate final report
-/home/massey/timezone_monitoring_script.sh
-/home/massey/email_timezone_report.sh
+$HOME/timezone_monitoring_script.sh
+$HOME/email_timezone_report.sh
 
 echo "[$(date)] Final report sent." >> "$LOG_FILE"

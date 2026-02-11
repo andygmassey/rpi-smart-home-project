@@ -13,7 +13,7 @@
 #   - Systemd handles boot startup only (Layer 3)
 #
 # Run via cron every 2 minutes:
-#   */2 * * * * /home/massey/pihole-watchdog.sh
+#   */2 * * * * $HOME/pihole-watchdog.sh
 
 set -euo pipefail
 

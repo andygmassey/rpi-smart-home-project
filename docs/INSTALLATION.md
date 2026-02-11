@@ -51,7 +51,7 @@ sudo systemctl enable docker
 
 ```bash
 cd ~
-git clone https://github.com/andygmassey/rpi-smart-home-project.git
+git clone https://github.com/andygYOUR_USERNAME/rpi-smart-home-project.git
 cd rpi-smart-home-project
 ```
 

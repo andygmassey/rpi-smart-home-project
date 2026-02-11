@@ -36,7 +36,7 @@ sudo cp -r ~/mqtt-broker ~/backups/${BACKUP_NAME}/
 sudo cp -r ~/fing-agent-docker ~/backups/${BACKUP_NAME}/
 
 # Fix ownership of copied files
-sudo chown -R massey:massey ~/backups/${BACKUP_NAME}/
+sudo chown -R $USER:$USER ~/backups/${BACKUP_NAME}/
 
 # Backup system configurations
 echo "⚙️  Backing up system configurations..."
@@ -58,7 +58,7 @@ sudo cp /etc/systemd/system/homepage-dashboard.service ~/backups/${BACKUP_NAME}/
 sudo cp /etc/systemd/system/grafana-influx.service ~/backups/${BACKUP_NAME}/system/ 2>/dev/null || true
 
 # Fix ownership of systemd files
-sudo chown massey:massey ~/backups/${BACKUP_NAME}/system/*.service 2>/dev/null || true
+sudo chown $USER:$USER ~/backups/${BACKUP_NAME}/system/*.service 2>/dev/null || true
 
 # Create comprehensive restore script
 cat > ~/backups/${BACKUP_NAME}/restore.sh << 'EOL'
@@ -93,7 +93,7 @@ sudo cp -r mqtt-broker ~/
 sudo cp -r fing-agent-docker ~/
 
 # Fix ownership
-sudo chown -R massey:massey ~/pihole-docker ~/uptime-kuma ~/homepage-dashboard ~/grafana-influx ~/mqtt-broker ~/fing-agent-docker
+sudo chown -R $USER:$USER ~/pihole-docker ~/uptime-kuma ~/homepage-dashboard ~/grafana-influx ~/mqtt-broker ~/fing-agent-docker
 
 echo "⚙️  Restoring system configurations..."
 cp system/launch-ha-kiosk.sh ~/

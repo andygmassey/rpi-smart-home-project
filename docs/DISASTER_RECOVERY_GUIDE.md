@@ -3,7 +3,7 @@
 ## Quick Reference
 - **System**: Raspberry Pi Compute Module 4 in reTerminal
 - **Storage**: 29GB eMMC (internal, not removable)
-- **Latest Backup**: Check `/media/massey/RPI-BACKUP/`
+- **Latest Backup**: Check `/media/YOUR_USERNAME/RPI-BACKUP/`
 - **Services**: Pi-hole, Home Assistant, Uptime Kuma, Grafana, InfluxDB, MQTT, Homepage
 
 ---
@@ -11,7 +11,7 @@
 ## 📦 What You Have Backed Up
 
 ### Full System Images (Gold Master)
-**Location**: USB drive `/media/massey/RPI-BACKUP/`
+**Location**: USB drive `/media/YOUR_USERNAME/RPI-BACKUP/`
 
 Latest backups:
 - `rpi-smarthome-goldmaster-20251203-*.img.gz` (Creating now - 20-40 mins)
@@ -48,13 +48,13 @@ gunzip -c rpi-smarthome-goldmaster-20251203-*.img.gz | \
 #### Option 2: Network Restore (If reTerminal Still Boots)
 ```bash
 # 1. SSH into broken reTerminal
-ssh massey@192.168.1.76
+ssh YOUR_USERNAME@YOUR_DEVICE_IP
 
 # 2. Stop all services
 docker stop $(docker ps -q)
 
 # 3. Restore from USB
-sudo gunzip -c /media/massey/RPI-BACKUP/rpi-smarthome-goldmaster-*.img.gz | \
+sudo gunzip -c /media/YOUR_USERNAME/RPI-BACKUP/rpi-smarthome-goldmaster-*.img.gz | \
   sudo dd of=/dev/mmcblk0 bs=4M status=progress
 
 # 4. Reboot
@@ -77,16 +77,16 @@ sudo reboot
    #             influxdb, mosquitto, homeassistant
    ```
 
-3. **Access Services** (use reTerminal IP or 192.168.1.76):
-   - Homepage: http://192.168.1.76:3000
-   - Home Assistant: http://192.168.1.76:8123
-   - Pi-hole: http://192.168.1.76:80/admin
-   - Uptime Kuma: http://192.168.1.76:3001
-   - Grafana: http://192.168.1.76:3002 (admin/admin123)
+3. **Access Services** (use reTerminal IP or YOUR_DEVICE_IP):
+   - Homepage: http://YOUR_DEVICE_IP:3000
+   - Home Assistant: http://YOUR_DEVICE_IP:8123
+   - Pi-hole: http://YOUR_DEVICE_IP:80/admin
+   - Uptime Kuma: http://YOUR_DEVICE_IP:3001
+   - Grafana: http://YOUR_DEVICE_IP:3002 (admin/admin123)
 
 4. **DNS Working**
    ```bash
-   # On any device, set DNS to 192.168.1.76
+   # On any device, set DNS to YOUR_DEVICE_IP
    # Visit any website - ads should be blocked
    ```
 
@@ -100,7 +100,7 @@ sudo reboot
 sudo systemctl status docker
 
 # Restart all containers
-cd /home/massey
+cd /home/YOUR_USERNAME
 for dir in pihole-docker uptime-kuma grafana-influx mqtt-broker homepage-dashboard; do
   cd ~/$dir && docker-compose up -d
 done
@@ -110,7 +110,7 @@ done
 ```bash
 # Restart kiosk mode
 killall chromium-browser
-DISPLAY=:0 /home/massey/launch-homepage-kiosk.sh &
+DISPLAY=:0 /home/YOUR_USERNAME/launch-homepage-kiosk.sh &
 ```
 
 ### Network Issues
@@ -144,7 +144,7 @@ tar -czf ~/backup-configs-$(date +%Y%m%d).tar.gz \
 ```bash
 # Plug in USB drive labeled "RPI-BACKUP"
 # Then run:
-sudo /home/massey/create-goldmaster-backup-compressed.sh
+sudo /home/YOUR_USERNAME/create-goldmaster-backup-compressed.sh
 
 # Takes 20-40 minutes, creates ~9GB file
 # Monitor: tail -f /tmp/backup-*.log
@@ -170,9 +170,9 @@ sudo /home/massey/create-goldmaster-backup-compressed.sh
 - Pi-hole: 7-day retention (upgraded Dec 3, 2025)
 
 **Backup Locations**:
-- USB: `/media/massey/RPI-BACKUP/`
-- Scripts: `/home/massey/*.sh`
-- Configs: `/home/massey/*/docker-compose.yml`
+- USB: `/media/YOUR_USERNAME/RPI-BACKUP/`
+- Scripts: `/home/YOUR_USERNAME/*.sh`
+- Configs: `/home/YOUR_USERNAME/*/docker-compose.yml`
 
 **Key Files**:
 - This guide: `~/DISASTER_RECOVERY_GUIDE.md`

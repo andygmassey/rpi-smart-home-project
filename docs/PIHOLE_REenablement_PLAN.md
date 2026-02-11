@@ -27,7 +27,7 @@ Before re-enabling, verify:
 
 ```bash
 # SSH to reTerminal
-ssh massey@192.168.1.76
+ssh YOUR_USERNAME@YOUR_DEVICE_IP
 
 # Start Pi-hole manually (no restart policy)
 cd ~/pihole-docker
@@ -137,11 +137,11 @@ docker compose up -d
 **Goal**: Network-wide ad blocking
 
 **Option A: Per-device (Safest)**
-- Configure individual devices to use 192.168.1.76 as DNS
+- Configure individual devices to use YOUR_DEVICE_IP as DNS
 - Easy to revert per device
 
 **Option B: Router DHCP (Network-wide)**
-- Set router's DHCP to give out 192.168.1.76 as DNS
+- Set router's DHCP to give out YOUR_DEVICE_IP as DNS
 - Affects all devices
 - If Pi-hole goes down, network DNS breaks
 

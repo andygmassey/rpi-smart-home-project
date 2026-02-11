@@ -24,7 +24,7 @@ Route specific application traffic through Unlocator VPN via the reTerminal.
 
 Check status on reTerminal:
 ```bash
-ssh massey@192.168.1.76 "vpn-proxy-ctl.sh status"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "vpn-proxy-ctl.sh status"
 ```
 
 Output:
@@ -48,12 +48,12 @@ A watchdog runs every 2 minutes to ensure the VPN proxy stays healthy:
 
 **Check watchdog logs:**
 ```bash
-ssh massey@192.168.1.76 "tail -50 /home/massey/vpn-proxy-watchdog.log"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "tail -50 /home/YOUR_USERNAME/vpn-proxy-watchdog.log"
 ```
 
 **Watchdog status:**
 ```bash
-ssh massey@192.168.1.76 "systemctl status vpn-proxy-watchdog.timer"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "systemctl status vpn-proxy-watchdog.timer"
 ```
 
 ## Control Commands (on reTerminal)
@@ -92,7 +92,7 @@ brew install privoxy
 ```
 # Forward all traffic through reTerminal SOCKS5 proxy
 listen-address  127.0.0.1:8118
-forward-socks5  /  192.168.1.76:1080  .
+forward-socks5  /  YOUR_DEVICE_IP:1080  .
 ```
 
 **Start Privoxy:**
@@ -106,7 +106,7 @@ brew services start privoxy
 alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
 
 # VPN Proxy for curl (direct SOCKS5)
-alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
+alias vpn-curl='curl --socks5-hostname YOUR_DEVICE_IP:1080'
 ```
 
 **Test it:**
@@ -127,10 +127,10 @@ Electron-based apps (Claude desktop, Chrome) support the `--proxy-server` flag f
 **Add aliases to `~/.zshrc`:**
 ```bash
 # Claude desktop app via VPN
-alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
+alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
 
 # Chrome via VPN (for claude.ai web)
-alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://192.168.1.76:1080"'
+alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
 ```
 
 **Usage:**
@@ -151,14 +151,14 @@ chrome-vpn
 **Chrome with Proxy SwitchyOmega:**
 1. Install "Proxy SwitchyOmega" extension
 2. Create new profile "VPN"
-3. Protocol: SOCKS5, Server: 192.168.1.76, Port: 1080
+3. Protocol: SOCKS5, Server: YOUR_DEVICE_IP, Port: 1080
 4. Add rule: `*.anthropic.com` → VPN profile
 5. Add rule: `*.claude.ai` → VPN profile
 
 **Safari (System Proxy):**
 1. System Preferences → Network → Wi-Fi → Advanced → Proxies
 2. Enable "SOCKS Proxy"
-3. Server: 192.168.1.76, Port: 1080
+3. Server: YOUR_DEVICE_IP, Port: 1080
 4. Note: This affects ALL Safari traffic
 
 ### Option 4: Per-Application Proxy (macOS)
@@ -167,7 +167,7 @@ For apps that respect system proxy but you want per-app control:
 
 ```bash
 # Run specific app through proxy
-networksetup -setsocksfirewallproxy "Wi-Fi" 192.168.1.76 1080
+networksetup -setsocksfirewallproxy "Wi-Fi" YOUR_DEVICE_IP 1080
 
 # Disable when done
 networksetup -setsocksfirewallproxystate "Wi-Fi" off
@@ -183,7 +183,7 @@ networksetup -setsocksfirewallproxystate "Wi-Fi" off
 curl https://api.ipify.org
 
 # With proxy (VPN IP - should be different)
-curl --socks5-hostname 192.168.1.76:1080 https://api.ipify.org
+curl --socks5-hostname YOUR_DEVICE_IP:1080 https://api.ipify.org
 ```
 
 ### Expected Results
@@ -208,16 +208,16 @@ This is automatic - no manual kill switch needed.
 ### Proxy not connecting
 ```bash
 # Check if VPN is up
-ssh massey@192.168.1.76 "vpn-proxy-ctl.sh status"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "vpn-proxy-ctl.sh status"
 
 # Restart if needed
-ssh massey@192.168.1.76 "vpn-proxy-ctl.sh restart"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "vpn-proxy-ctl.sh restart"
 ```
 
 ### VPN won't connect
 ```bash
 # Check OpenVPN logs
-ssh massey@192.168.1.76 "sudo journalctl -u unlocator-vpn -n 50"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "sudo journalctl -u unlocator-vpn -n 50"
 ```
 
 ### Slow connection
@@ -244,12 +244,12 @@ curl -x http://127.0.0.1:8118 https://api.ipify.org
 
 ### Enable auto-start on boot
 ```bash
-ssh massey@192.168.1.76 "sudo systemctl enable unlocator-vpn vpn-proxy"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "sudo systemctl enable unlocator-vpn vpn-proxy"
 ```
 
 ### Disable auto-start
 ```bash
-ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
+ssh YOUR_USERNAME@YOUR_DEVICE_IP "sudo systemctl disable unlocator-vpn vpn-proxy"
 ```
 
 ---
@@ -267,7 +267,7 @@ ssh massey@192.168.1.76 "sudo systemctl disable unlocator-vpn vpn-proxy"
 | `/usr/local/bin/vpn-proxy-ctl.sh` | Control script |
 | `/usr/local/bin/vpn-proxy-watchdog.sh` | Health check script |
 | `/usr/local/bin/microsocks` | SOCKS5 proxy binary |
-| `/home/massey/vpn-proxy-watchdog.log` | Watchdog log file |
+| `/home/YOUR_USERNAME/vpn-proxy-watchdog.log` | Watchdog log file |
 
 ## Files on Mac
 
@@ -295,13 +295,13 @@ alias notebooklm-vpn='~/bin/notebooklm-vpn'
 alias antigravity-vpn='~/bin/antigravity-vpn'
 
 # Claude desktop app - via macOS Launch Services
-alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
+alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
 
 # Chrome browser - via macOS Launch Services
-alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://192.168.1.76:1080"'
+alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
 
 # curl via VPN
-alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
+alias vpn-curl='curl --socks5-hostname YOUR_DEVICE_IP:1080'
 ```
 
 ---

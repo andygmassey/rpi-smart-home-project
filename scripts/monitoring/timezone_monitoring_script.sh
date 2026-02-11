@@ -4,8 +4,8 @@
 # Created: $(date)
 # Purpose: Monitor applications after timezone change from Europe/London to Asia/Hong_Kong
 
-REPORT_FILE="/home/massey/timezone_change_report_$(date +%Y%m%d_%H%M).txt"
-LOG_DIR="/home/massey/timezone_logs"
+REPORT_FILE="$HOME/timezone_change_report_$(date +%Y%m%d_%H%M).txt"
+LOG_DIR="$HOME/timezone_logs"
 
 # Create log directory
 mkdir -p "$LOG_DIR"

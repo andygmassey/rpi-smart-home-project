@@ -4,8 +4,8 @@
 
 set -euo pipefail
 
-LOG_FILE="/home/massey/vpn-proxy-watchdog.log"
-STATE_FILE="/home/massey/.vpn-proxy-watchdog-state"
+LOG_FILE="$HOME/vpn-proxy-watchdog.log"
+STATE_FILE="$HOME/.vpn-proxy-watchdog-state"
 MAX_RESTARTS_PER_HOUR=3
 COOLDOWN_SECONDS=300  # 5 minutes
 

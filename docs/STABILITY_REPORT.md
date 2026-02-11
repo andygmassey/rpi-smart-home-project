@@ -33,13 +33,13 @@ CONF_SWAPSIZE=2048
 
 ✅ **Pi-hole retention reduced to 7 days**
 ```bash
-# Created /home/massey/pihole-docker/etc-pihole/pihole-FTL.conf
+# Created /home/YOUR_USERNAME/pihole-docker/etc-pihole/pihole-FTL.conf
 MAXDBDAYS=7
 DBIMPORT=yes
 ```
 
 ✅ **Created database vacuum script**
-- Location: `/home/massey/cleanup_database.sh`
+- Location: `/home/YOUR_USERNAME/cleanup_database.sh`
 - Run manually to shrink the 1.4GB database
 - Will take several minutes to complete
 

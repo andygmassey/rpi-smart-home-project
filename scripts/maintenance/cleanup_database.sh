@@ -10,13 +10,13 @@ echo "Stopping Pi-hole to vacuum database..."
 docker stop pihole
 
 echo "Backing up database..."
-cp /home/massey/pihole-docker/etc-pihole/pihole-FTL.db /home/massey/pihole-docker/etc-pihole/pihole-FTL.db.backup
+cp $HOME/pihole-docker/etc-pihole/pihole-FTL.db $HOME/pihole-docker/etc-pihole/pihole-FTL.db.backup
 
 echo "Vacuuming database..."
-sqlite3 /home/massey/pihole-docker/etc-pihole/pihole-FTL.db "VACUUM;"
+sqlite3 $HOME/pihole-docker/etc-pihole/pihole-FTL.db "VACUUM;"
 
 echo "Database size after vacuum:"
-du -h /home/massey/pihole-docker/etc-pihole/pihole-FTL.db
+du -h $HOME/pihole-docker/etc-pihole/pihole-FTL.db
 
 echo "Starting Pi-hole..."
 docker start pihole

@@ -6,8 +6,8 @@ case "$1" in
         x11vnc -display :0 -rfbauth ~/.vnc/passwd -shared -forever -noxdamage -repeat -rfbport 5900 &
         sleep 2
         echo "✅ VNC server started on port 5900"
-        echo "🌐 Access via web browser: http://192.168.1.76:6080/vnc.html"
-        echo "📱 Or VNC client: 192.168.1.76:5900"
+        echo "🌐 Access via web browser: http://192.168.1.100:6080/vnc.html"
+        echo "📱 Or VNC client: 192.168.1.100:5900"
         ;;
     stop)
         echo "⏹️  Stopping VNC services..."
@@ -30,8 +30,8 @@ case "$1" in
         
         if pgrep x11vnc > /dev/null; then
             echo ""
-            echo "🌐 Access via browser: http://192.168.1.76:6080/vnc.html"
-            echo "📱 VNC client: 192.168.1.76:5900"
+            echo "🌐 Access via browser: http://192.168.1.100:6080/vnc.html"
+            echo "📱 VNC client: 192.168.1.100:5900"
         fi
         ;;
     restart)

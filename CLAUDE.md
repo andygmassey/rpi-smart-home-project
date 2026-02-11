@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A smart home automation system running on a SeeedStudio reTerminal (Raspberry Pi CM4) with integrated touchscreen display. The system runs multiple Docker services for home automation, monitoring, and network management.
 
-**Live system**: `192.168.1.76` (SSH: `ssh massey@192.168.1.76`)
+**Live system**: `YOUR_DEVICE_IP` (SSH: `ssh YOUR_USERNAME@YOUR_DEVICE_IP`)
 
 ## Architecture
 

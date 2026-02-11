@@ -42,7 +42,7 @@ This document describes all the Docker services running in the smart home system
 - **Purpose**: Temporarily pause Pi-hole blocking via HTTP request
 - **Config**: `scripts/system/pihole-webhook.py`
 - **Service**: `system/systemd/pihole-webhook.service`
-- **Usage**: `http://192.168.1.76:8888/?duration=10`
+- **Usage**: `http://YOUR_DEVICE_IP:8888/?duration=10`
 - **Safari Bookmark**: Add the URL above to quickly pause blocking for 10 seconds when visiting a link that Pi-hole is blocking too aggressively
 
 #### Uptime Kuma (`uptime-kuma`)

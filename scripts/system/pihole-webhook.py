@@ -4,13 +4,14 @@ Pi-hole Webhook Service
 Temporarily disables Pi-hole blocking via HTTP request.
 
 Usage:
-    http://192.168.1.76:8888/?duration=10
+    http://192.168.1.100:8888/?duration=10
+    (Change 192.168.1.100 to your device's IP address)
 
 Parameters:
     duration: Seconds to disable blocking (1-86400, default: 10)
 
 Example Safari Bookmark:
-    http://192.168.1.76:8888/?duration=10
+    http://192.168.1.100:8888/?duration=10
 
 This is useful when Pi-hole is blocking a link you need to access temporarily.
 """
@@ -79,5 +80,6 @@ if __name__ == '__main__':
     PORT = 8888
     server = HTTPServer(('0.0.0.0', PORT), PiHoleWebhook)
     print(f'Pi-hole webhook server running on port {PORT}')
-    print(f'Usage: http://192.168.1.76:{PORT}/?duration=10')
+    print(f'Usage: http://192.168.1.100:{PORT}/?duration=10')
+    print(f'(Change 192.168.1.100 to your device IP)')
     server.serve_forever()

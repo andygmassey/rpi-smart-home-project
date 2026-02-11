@@ -8,7 +8,7 @@
 ## SYMPTOMS
 
 ### Initial Alert (Dec 3, ~3am)
-- Email alerts: "[Pi-hole] [🔴 Down] connect ECONNREFUSED 192.168.1.76:80"
+- Email alerts: "[Pi-hole] [🔴 Down] connect ECONNREFUSED YOUR_DEVICE_IP:80"
 - Repeated every few minutes throughout the night
 - System became unreachable during scheduled backup
 
@@ -44,7 +44,7 @@
 ### 2. **MASSIVE PI-HOLE DATABASE** (1.4GB)
 **Evidence:**
 ```
--rw-r----- 1 massey massey 1.4G Dec  4 11:15 pihole-FTL.db
+-rw-r----- 1 YOUR_USERNAME YOUR_USERNAME 1.4G Dec  4 11:15 pihole-FTL.db
 Imported 290623 queries from database (23,004,946 rows)
 ```
 
@@ -192,9 +192,9 @@ docker run -d --name=pihole --network=host --restart=no \
   -e TZ='Asia/Hong_Kong' \
   -e 'PIHOLE_DNS_=8.8.8.8;8.8.4.4' \
   -e DNSMASQ_LISTENING='all' \
-  -e VIRTUAL_HOST='192.168.1.76' \
-  -v /home/massey/pihole-docker/etc-pihole:/etc/pihole \
-  -v /home/massey/pihole-docker/etc-dnsmasq.d:/etc/dnsmasq.d \
+  -e VIRTUAL_HOST='YOUR_DEVICE_IP' \
+  -v /home/YOUR_USERNAME/pihole-docker/etc-pihole:/etc/pihole \
+  -v /home/YOUR_USERNAME/pihole-docker/etc-dnsmasq.d:/etc/dnsmasq.d \
   --dns=8.8.8.8 \
   pihole/pihole:latest
 ```
@@ -271,7 +271,7 @@ pihole-docker.service: disabled
 ### 2. Pi-hole Configuration
 ```bash
 # Database retention (7 days)
-/home/massey/pihole-docker/etc-pihole/pihole-FTL.conf:
+/home/YOUR_USERNAME/pihole-docker/etc-pihole/pihole-FTL.conf:
 MAXDBDAYS=7
 DBIMPORT=yes
 
@@ -283,7 +283,7 @@ DBIMPORT=yes
 ### 3. Backup Strategy
 ```bash
 # Safe backup script created
-/home/massey/safe-backup.sh
+/home/YOUR_USERNAME/safe-backup.sh
 - Stops non-essential services before backup
 - Prevents memory exhaustion
 - Auto-restarts services after
@@ -313,7 +313,7 @@ DBIMPORT=yes
 ## BACKUP STATUS
 
 ### Successful Backup:
-- **File**: `/media/massey/RPI-BACKUP/rpi-smarthome-goldmaster-20251204-030021.img.gz`
+- **File**: `/media/YOUR_USERNAME/RPI-BACKUP/rpi-smarthome-goldmaster-20251204-030021.img.gz`
 - **Size**: 7.8GB (compressed from 29GB)
 - **Date**: December 4, 2025, 4:48am HKT
 - **Includes**: 
@@ -349,8 +349,8 @@ gunzip -c rpi-smarthome-goldmaster-20251204-030021.img.gz | \
 - `~/launch-homepage-kiosk.sh` - Fixed LCD kiosk launcher
 
 ### Configuration:
-- `/home/massey/pihole-docker/etc-pihole/pihole-FTL.conf` - Database retention
-- `/home/massey/pihole-docker/docker-compose.yml.backup-*` - Multiple backups of compose
+- `/home/YOUR_USERNAME/pihole-docker/etc-pihole/pihole-FTL.conf` - Database retention
+- `/home/YOUR_USERNAME/pihole-docker/docker-compose.yml.backup-*` - Multiple backups of compose
 
 ---
 

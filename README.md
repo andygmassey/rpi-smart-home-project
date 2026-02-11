@@ -51,12 +51,12 @@ This project provides a complete smart home solution featuring real-time monitor
 
 | Service | Purpose | Web Interface | Port |
 |---------|---------|---------------|------|
-| **Home Assistant** | Automation Hub | http://192.168.1.76:8123 | 8123 |
-| **Grafana** | Data Visualization | http://192.168.1.76:3002 | 3002 |
+| **Home Assistant** | Automation Hub | http://YOUR_DEVICE_IP:8123 | 8123 |
+| **Grafana** | Data Visualization | http://YOUR_DEVICE_IP:3002 | 3002 |
 | **InfluxDB** | Metrics Database | - | 8086 |
-| **Pi-hole** | DNS + Ad Blocking | http://192.168.1.76/admin | 80 |
-| **Homepage** | Unified Dashboard | http://192.168.1.76:3002 | 3002 |
-| **Uptime Kuma** | Service Monitoring | http://192.168.1.76:3001 | 3001 |
+| **Pi-hole** | DNS + Ad Blocking | http://YOUR_DEVICE_IP/admin | 80 |
+| **Homepage** | Unified Dashboard | http://YOUR_DEVICE_IP:3002 | 3002 |
+| **Uptime Kuma** | Service Monitoring | http://YOUR_DEVICE_IP:3001 | 3001 |
 | **MQTT Broker** | IoT Messaging | - | 1883 |
 | **Fing Agent** | Network Discovery | - | - |
 
@@ -70,7 +70,7 @@ This project provides a complete smart home solution featuring real-time monitor
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/andygmassey/rpi-smart-home-project.git
+git clone https://github.com/andygYOUR_USERNAME/rpi-smart-home-project.git
 cd rpi-smart-home-project
 
 # Setup environment
@@ -81,7 +81,7 @@ nano .env  # Configure your passwords
 ./scripts/system/deploy-all-services.sh
 
 # Access main dashboard
-open http://192.168.1.76:3002
+open http://YOUR_DEVICE_IP:3002
 ```
 
 ## 📚 Documentation

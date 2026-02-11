@@ -18,7 +18,7 @@ echo "2/4 Waiting for memory to clear..."
 sleep 10
 
 echo "3/4 Starting backup (will take 20-40 minutes)..."
-sudo /home/massey/create-goldmaster-backup-compressed.sh
+sudo $HOME/create-goldmaster-backup-compressed.sh
 
 echo "4/4 Restarting services..."
 cd ~/homepage-dashboard && docker-compose up -d

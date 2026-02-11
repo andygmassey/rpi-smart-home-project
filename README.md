@@ -401,10 +401,6 @@ Third-party Docker images and services retain their respective licenses. See [LI
 - **[SeeedStudio](https://www.seeedstudio.com/)** - reTerminal hardware platform
 - **Raspberry Pi Foundation** - Amazing single-board computers
 
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=andygmassey/rpi-smart-home-project&type=Date)](https://star-history.com/#andygmassey/rpi-smart-home-project&Date)
-
 ## 💬 Community & Support
 
 - **🐛 Bug Reports**: [GitHub Issues](https://github.com/andygmassey/rpi-smart-home-project/issues)

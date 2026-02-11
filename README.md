@@ -3,10 +3,47 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi-red.svg)](https://www.raspberrypi.com/)
 [![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+[![GitHub Release](https://img.shields.io/github/v/release/andygmassey/rpi-smart-home-project)](https://github.com/andygmassey/rpi-smart-home-project/releases)
+[![GitHub Stars](https://img.shields.io/github/stars/andygmassey/rpi-smart-home-project?style=social)](https://github.com/andygmassey/rpi-smart-home-project)
 
 A comprehensive smart home automation system running on Raspberry Pi CM4 with reTerminal display.
 
+> **🎯 Perfect for**: Home automation enthusiasts, Raspberry Pi tinkerers, and anyone wanting a self-hosted smart home hub with professional monitoring and network management.
+
 ## 🏠 Overview
+
+This project provides a complete smart home solution featuring real-time monitoring, automation, network management, and hardware control - all running in a secure, containerized environment.
+
+## 📸 Screenshots
+
+### System Dashboard
+*Real-time monitoring of CPU, memory, disk, and network performance*
+
+![System Vitals Dashboard](https://via.placeholder.com/800x450/1a1a1a/00ff00?text=Grafana+System+Vitals+Dashboard)
+
+### Homepage Unified Dashboard
+*Single pane of glass for all your smart home services*
+
+![Homepage Dashboard](https://via.placeholder.com/800x450/1a1a1a/0080ff?text=Homepage+Dashboard)
+
+### Service Status Monitoring
+*Track uptime and performance of all services*
+
+![Uptime Kuma](https://via.placeholder.com/800x450/1a1a1a/00ffff?text=Uptime+Kuma+Monitoring)
+
+> **Note:** Replace placeholder images with actual screenshots after deployment. Run on reTerminal and capture with `scrot` or similar.
+
+## 🌟 Why This Project?
+
+- **🏡 Complete Solution**: Everything you need for home automation in one place
+- **🔒 Privacy-First**: Self-hosted, no cloud dependencies
+- **📊 Professional Monitoring**: Grafana dashboards rival enterprise solutions
+- **🎮 Hardware Integration**: Custom GPIO button controls for the reTerminal
+- **💾 Disaster Recovery**: Automated backup system with restore scripts
+- **🛡️ Network Protection**: Built-in ad-blocking and DNS filtering
+- **🔧 Production-Ready**: Watchdog systems, health checks, and auto-recovery
+
+## 🏠 Overview (Detailed)
 
 This project provides a complete smart home solution featuring real-time monitoring, automation, network management, and hardware control - all running in a secure, containerized environment.
 
@@ -94,6 +131,8 @@ open http://YOUR_DEVICE_IP:3002
 - **[🔧 Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions
 - **[📖 Usage Guide](docs/USAGE.md)** - Daily operations and maintenance
 - **[🛠️ Services Overview](docs/SERVICES.md)** - Detailed service documentation
+- **[📋 Changelog](CHANGELOG.md)** - Version history and release notes
+- **[🤝 Contributing](CONTRIBUTING.md)** - How to contribute to this project
 
 ### 🗂️ Quick References
 - **[🔧 Script Reference](#script-reference)** - All automation scripts
@@ -410,3 +449,78 @@ See [monitoring/grafana-influx/README.md](monitoring/grafana-influx/README.md) f
 - ✅ Network monitoring optimized
 - ✅ Grafana dashboard restored
 
+
+## 🎯 Use Cases
+
+This project is ideal for:
+
+- **🏠 Home Automation Enthusiasts**: Complete control over your smart home
+- **🔐 Privacy-Conscious Users**: Keep your data on your own hardware
+- **📊 Data Nerds**: Beautiful real-time dashboards for system monitoring
+- **🎓 Learning Projects**: Great for understanding Docker, networking, and automation
+- **🏢 Home Lab**: Professional-grade monitoring for your home network
+- **🌐 Network Administrators**: Family network management with ad-blocking and DNS control
+
+## 🗺️ Roadmap
+
+Future enhancements being considered:
+
+- [ ] Zigbee/Z-Wave device integration examples
+- [ ] Energy monitoring dashboards
+- [ ] Automated offsite backup to cloud storage
+- [ ] Mobile app companion
+- [ ] Voice assistant integration (Alexa/Google Home)
+- [ ] Advanced automation examples
+- [ ] Kubernetes deployment option
+- [ ] Multi-device support documentation
+
+**Have an idea?** Open an issue or discussion to suggest new features!
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START -->
+Thanks to everyone who has contributed to this project!
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### Third-Party Licenses
+
+This project uses several third-party Docker images and services, each with their own licenses. See [LICENSE](LICENSE) for full details.
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=andygmassey/rpi-smart-home-project&type=Date)](https://star-history.com/#andygmassey/rpi-smart-home-project&Date)
+
+## 🙏 Acknowledgments
+
+- **[Pi-hole](https://pi-hole.net/)** - Network-wide ad blocking
+- **[Home Assistant](https://www.home-assistant.io/)** - Open source home automation
+- **[Grafana](https://grafana.com/)** - Beautiful monitoring dashboards
+- **[SeeedStudio](https://www.seeedstudio.com/)** - reTerminal hardware platform
+- **Raspberry Pi Foundation** - Amazing single-board computers
+
+## 💬 Community & Support
+
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/andygmassey/rpi-smart-home-project/issues)
+- **💡 Feature Requests**: [GitHub Discussions](https://github.com/andygmassey/rpi-smart-home-project/discussions)
+- **❓ Questions**: [GitHub Discussions Q&A](https://github.com/andygmassey/rpi-smart-home-project/discussions/categories/q-a)
+- **📢 Announcements**: [GitHub Discussions](https://github.com/andygmassey/rpi-smart-home-project/discussions/categories/announcements)
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#raspberry-pi-smart-home-project)**
+
+Made with ❤️ for the home automation community
+
+**[⭐ Star this repo](https://github.com/andygmassey/rpi-smart-home-project)** if you find it useful!
+
+</div>

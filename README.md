@@ -1,5 +1,9 @@
 # Raspberry Pi Smart Home Project
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi-red.svg)](https://www.raspberrypi.com/)
+[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+
 A comprehensive smart home automation system running on Raspberry Pi CM4 with reTerminal display.
 
 ## 🏠 Overview
@@ -70,7 +74,7 @@ This project provides a complete smart home solution featuring real-time monitor
 ### Installation
 ```bash
 # Clone repository
-git clone https://github.com/andygYOUR_USERNAME/rpi-smart-home-project.git
+git clone https://github.com/andygmassey/rpi-smart-home-project.git
 cd rpi-smart-home-project
 
 # Setup environment

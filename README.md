@@ -8,6 +8,10 @@
 
 A comprehensive smart home automation system running on Raspberry Pi CM4 with reTerminal display.
 
+<p align="center">
+  <img src="images/reterminal-dashboard.jpg" alt="reTerminal Smart Home Dashboard" width="800">
+</p>
+
 > **🎯 Perfect for**: Home automation enthusiasts, Raspberry Pi tinkerers, and anyone wanting a self-hosted smart home hub with professional monitoring and network management.
 
 ## 🏠 Overview

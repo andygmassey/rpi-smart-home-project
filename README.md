@@ -14,25 +14,6 @@ A comprehensive smart home automation system running on Raspberry Pi CM4 with re
 
 This project provides a complete smart home solution featuring real-time monitoring, automation, network management, and hardware control - all running in a secure, containerized environment.
 
-## 📸 Screenshots
-
-### System Dashboard
-*Real-time monitoring of CPU, memory, disk, and network performance*
-
-![System Vitals Dashboard](https://via.placeholder.com/800x450/1a1a1a/00ff00?text=Grafana+System+Vitals+Dashboard)
-
-### Homepage Unified Dashboard
-*Single pane of glass for all your smart home services*
-
-![Homepage Dashboard](https://via.placeholder.com/800x450/1a1a1a/0080ff?text=Homepage+Dashboard)
-
-### Service Status Monitoring
-*Track uptime and performance of all services*
-
-![Uptime Kuma](https://via.placeholder.com/800x450/1a1a1a/00ffff?text=Uptime+Kuma+Monitoring)
-
-> **Note:** Replace placeholder images with actual screenshots after deployment. Run on reTerminal and capture with `scrot` or similar.
-
 ## 🌟 Why This Project?
 
 - **🏡 Complete Solution**: Everything you need for home automation in one place
@@ -42,10 +23,6 @@ This project provides a complete smart home solution featuring real-time monitor
 - **💾 Disaster Recovery**: Automated backup system with restore scripts
 - **🛡️ Network Protection**: Built-in ad-blocking and DNS filtering
 - **🔧 Production-Ready**: Watchdog systems, health checks, and auto-recovery
-
-## 🏠 Overview (Detailed)
-
-This project provides a complete smart home solution featuring real-time monitoring, automation, network management, and hardware control - all running in a secure, containerized environment.
 
 ### ✨ Key Features
 
@@ -375,80 +352,6 @@ docker logs <service-name>
 - Security hardening implemented
 - Hardware integration functional
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Home Assistant Community** - Automation platform
-- **Grafana Labs** - Visualization tools
-- **Pi-hole Team** - Network filtering
-- **Seeed Studio** - reTerminal hardware
-- **Docker** - Containerization platform
-
----
-
-**🏠 Built with ❤️ for Smart Home Automation**
-
-*Last Updated: January 2026*
-
-## Monitoring Stack
-
-### Grafana + InfluxDB Setup
-The `monitoring/grafana-influx/` directory contains a complete monitoring solution:
-
-- **Grafana Dashboard**: System vitals visualization
-- **InfluxDB Database**: Time-series metrics storage
-- **Docker Compose**: Easy deployment
-
-**Quick Start:**
-```bash
-cd monitoring/grafana-influx
-# Edit docker-compose.yml to set your passwords
-docker compose up -d
-# Access: http://your-pi:3002
-```
-
-**Features:**
-- Real-time CPU, memory, disk monitoring
-- Temperature tracking
-- Responsive dashboard design
-- Secure authentication
-- Automated log rotation
-
-See [monitoring/grafana-influx/README.md](monitoring/grafana-influx/README.md) for detailed setup instructions.
-
-## Recent Updates
-
-### 2026-01-21: Major Infrastructure Overhaul
-
-#### Pi-hole Re-enabled with Bulletproof Watchdog
-- ✅ **Pi-hole Restored**: Re-enabled after 7 weeks offline (Dec 2025 OOM incident)
-- ✅ **3-Layer Watchdog**: Coordinated Docker/Script/Systemd protection
-- ✅ **Unlocator SmartDNS**: Configured for streaming geo-unblocking (185.37.37.37, 185.37.39.39)
-- ✅ **Database Capped**: 7-day retention prevents growth issues
-
-#### Security & Cleanup
-- ✅ **Getflix VPN Removed**: Broken VPN infrastructure completely removed
-- ✅ **Credentials Secured**: Removed all hardcoded passwords from scripts
-- ✅ **IP Parameterized**: All hardcoded IPs replaced with environment variables
-
-#### Backup System
-- ✅ **Borg Backups**: Initialized and running every 2 weeks
-- ✅ **Fresh Gold Master**: New disk image created (Jan 21, 2026)
-- ✅ **Deploy/Rollback Scripts**: Safe deployment with automatic backups
-
-#### Documentation
-- ✅ **WATCHDOG_SYSTEM.md**: Full watchdog architecture documentation
-- ✅ **PIHOLE_INCIDENT_REPORT.md**: Dec 2025 incident post-mortem
-- ✅ **CLAUDE.md**: AI assistant context file
-
-### 2025-08-31: System Maintenance
-- ✅ Log rotation fixed
-- ✅ Network monitoring optimized
-- ✅ Grafana dashboard restored
-
 
 ## 🎯 Use Cases
 
@@ -480,8 +383,6 @@ Future enhancements being considered:
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-### Contributors
-
 <!-- ALL-CONTRIBUTORS-LIST:START -->
 Thanks to everyone who has contributed to this project!
 <!-- ALL-CONTRIBUTORS-LIST:END -->
@@ -490,13 +391,7 @@ Thanks to everyone who has contributed to this project!
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Third-Party Licenses
-
-This project uses several third-party Docker images and services, each with their own licenses. See [LICENSE](LICENSE) for full details.
-
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=andygmassey/rpi-smart-home-project&type=Date)](https://star-history.com/#andygmassey/rpi-smart-home-project&Date)
+Third-party Docker images and services retain their respective licenses. See [LICENSE](LICENSE) for full details.
 
 ## 🙏 Acknowledgments
 
@@ -505,6 +400,10 @@ This project uses several third-party Docker images and services, each with thei
 - **[Grafana](https://grafana.com/)** - Beautiful monitoring dashboards
 - **[SeeedStudio](https://www.seeedstudio.com/)** - reTerminal hardware platform
 - **Raspberry Pi Foundation** - Amazing single-board computers
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=andygmassey/rpi-smart-home-project&type=Date)](https://star-history.com/#andygmassey/rpi-smart-home-project&Date)
 
 ## 💬 Community & Support
 

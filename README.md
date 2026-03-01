@@ -184,6 +184,53 @@ Pi-hole provides network-wide DNS and ad-blocking with a bulletproof 3-layer wat
 See `docs/WATCHDOG_SYSTEM.md` for full documentation.
 
 
+## 🌐 VPN Routing Infrastructure
+
+### Dual VPN Architecture
+
+The system runs two concurrent OpenVPN tunnels for geographic traffic routing:
+
+| Tunnel | Interface | Purpose | Provider |
+|--------|-----------|---------|----------|
+| Primary VPN | tun0 | Default traffic routing | Unlocator (US) |
+| UK VPN | tun1 | Streaming geo-access | Unlocator (UK London) |
+
+### Policy-Based Routing
+
+Selective traffic routing is implemented using Linux policy routing (`ip rule` / `ip route`) rather than routing all traffic through the UK tunnel:
+
+- **`route-nopull`**: UK VPN does not override default routes
+- **Dedicated routing table** (`ukvpn`): Separate routing table for UK-bound traffic
+- **Source-based routing**: Specific LAN devices are policy-routed through the UK tunnel via `ip rule`
+- **NAT masquerade**: Traffic from routed devices is NATed on tun1 for proper return routing
+
+### Systemd Services
+
+| Service | Config | Description |
+|---------|--------|-------------|
+| `uk-vpn-prime.service` | `/etc/openvpn/client/uk-vpn.conf` | UK VPN tunnel + routing setup |
+
+**Routing scripts:**
+- `/usr/local/bin/setup-prime-routing.sh` — Creates routing table, ip rules, and NAT on VPN start
+- `/usr/local/bin/cleanup-prime-routing.sh` — Removes routing rules on VPN stop
+
+### Management
+```bash
+# Check status
+sudo systemctl status uk-vpn-prime
+
+# Restart UK VPN
+sudo systemctl restart uk-vpn-prime
+
+# Disable UK VPN
+sudo systemctl disable --now uk-vpn-prime
+
+# Verify routing
+ip rule list
+ip route show table ukvpn
+```
+
+
 ## 🐳 Docker Services
 
 All services run in isolated Docker containers with persistent data storage:

@@ -57,6 +57,7 @@ node_modules/
 # Personal/local configuration
 *local*
 *personal*
+reddit-drafts.md
 
 # Large files that shouldn't be in git
 *.img

@@ -162,7 +162,8 @@ if __name__ == "__main__":
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+    signal.signal(signal.SIGCHLD, signal.SIG_IGN)  # Auto-reap child processes
+
     # Create and run the button handler
     handler = MultiButtonHandler()
     handler.run()

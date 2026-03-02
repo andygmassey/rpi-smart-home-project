@@ -396,6 +396,31 @@ def check_system():
             "details": details}
 
 
+def check_smartdns():
+    """Unlocator SmartDNS: directly query both servers to verify reachability."""
+    issues = []
+    details = {}
+    servers = {
+        "185.37.37.37": "primary",
+        "185.37.39.39": "secondary",
+    }
+    for ip, role in servers.items():
+        out, rc = run(f"dig @{ip} google.com +short +time=4 +tries=1 2>/dev/null | head -1")
+        if rc == 0 and out.strip():
+            details[f"{role} ({ip})"] = f"UP — responded with {out.strip()}"
+        else:
+            issues.append(f"Unlocator {role} ({ip}) not responding")
+            details[f"{role} ({ip})"] = "DOWN / timeout"
+
+    if issues:
+        return {"status": "error",
+                "msg": "; ".join(issues) + " — geo-unblocking may be broken",
+                "details": details}
+    return {"status": "ok",
+            "msg": "Both Unlocator SmartDNS servers reachable",
+            "details": details}
+
+
 def check_orbi():
     """Ping Orbi router and satellites."""
     details = {}
@@ -440,6 +465,7 @@ def run_all_checks():
         "vpn_uk": check_vpn_uk,
         "proxy": check_proxy,
         "pihole": check_pihole,
+        "smartdns": check_smartdns,
         "docker": check_docker,
         "systemd": check_systemd,
         "system": check_system,
@@ -667,8 +693,31 @@ sleep 15 && sudo systemctl restart vpn-proxy</div>
     <div class="remediation"># Update Pi-hole to use Unlocator SmartDNS:
 # In Pi-hole admin → Settings → DNS
 # Primary: 185.37.37.37
-# Secondary: 185.37.39.39
+# Secondary: 185.37.37.38
 # (or update docker-compose.yml DNS vars)</div>
+    {% endif %}
+  </div>
+</div>
+
+{# ── Unlocator SmartDNS ── #}
+{% set s = data.smartdns %}
+<div class="card status-{{ s.status }}">
+  <div class="card-header">
+    <div class="status-dot"></div>
+    <span class="card-title">🌍 Unlocator SmartDNS</span>
+  </div>
+  <div class="card-body">
+    <div class="msg {{ 'ok' if s.status=='ok' else ('warn' if s.status=='warn' else 'err') }}">{{ s.msg }}</div>
+    {% if s.details %}
+    <div class="details">
+      {% for k,v in s.details.items() %}
+      <div class="detail-row"><span class="detail-key">{{ k }}</span><span class="detail-val {% if 'DOWN' in (v|string) %}err{% elif 'UP' in (v|string) %}ok{% endif %}">{{ v }}</span></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if s.status == 'error' %}
+    <div class="remediation"># SmartDNS servers unreachable — check VPN/internet connectivity
+# Verify Pi-hole upstream: Settings → DNS in Pi-hole admin</div>
     {% endif %}
   </div>
 </div>

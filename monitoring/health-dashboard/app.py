@@ -23,7 +23,7 @@ app = Flask(__name__)
 # Constants
 # ---------------------------------------------------------------------------
 APPLE_TV_IP = "192.168.1.23"
-EXPECTED_DNS_SERVERS = ["185.37.37.37", "185.37.37.38"]   # Unlocator SmartDNS
+EXPECTED_DNS_SERVERS = ["185.37.37.37", "185.37.39.39"]   # Unlocator SmartDNS
 EXPECTED_CONTAINERS = [
     "homeassistant", "hassio_supervisor", "hassio_multicast",
     "hassio_audio", "hassio_dns", "hassio_cli", "hassio_observer",
@@ -667,7 +667,7 @@ sleep 15 && sudo systemctl restart vpn-proxy</div>
     <div class="remediation"># Update Pi-hole to use Unlocator SmartDNS:
 # In Pi-hole admin → Settings → DNS
 # Primary: 185.37.37.37
-# Secondary: 185.37.37.38
+# Secondary: 185.37.39.39
 # (or update docker-compose.yml DNS vars)</div>
     {% endif %}
   </div>

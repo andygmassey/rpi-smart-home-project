@@ -1,386 +1,438 @@
-# VPN Proxy Setup Guide
+# VPN & Proxy Infrastructure
 
-Route specific application traffic through Unlocator VPN via the reTerminal.
+Route application traffic from the Mac through Unlocator VPN tunnels on the reTerminal, with per-app and per-device control.
 
-## Architecture
+## Architecture Overview
 
 ```
-┌─────────────────┐      ┌─────────────────────────────────────┐
-│   Your Mac      │      │          reTerminal                 │
-│                 │      │                                     │
-│  Claude Code ───┼──────┼──► SOCKS5 Proxy ──► VPN Tunnel ────┼──► Unlocator
-│  (via Privoxy)  │ :1080│   (microsocks)    (OpenVPN)        │    Chicago
-│                 │      │                                     │
-│  Claude App ────┼──────┼──► Same proxy (--proxy-server)     │
-│  Chrome ────────┼──────┼──► Same proxy (--proxy-server)     │
-│                 │      │                                     │
-│                 │      │   Kill Switch: Proxy bound to VPN  │
-│  Other apps ────┼──────┼──► Direct to Internet (no proxy)   │
-│                 │      │   IP - if VPN drops, proxy fails   │
-└─────────────────┘      └─────────────────────────────────────┘
-```
-
-## VPN Proxy Status
-
-Check status on reTerminal:
-```bash
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "vpn-proxy-ctl.sh status"
-```
-
-Output:
-```
-=== VPN Proxy Status ===
-
-VPN:        CONNECTED (10.90.0.18)
-Proxy:      RUNNING (port 1080)
-Kill Switch: ENABLED
-
-External IP: 89.187.181.130
-```
-
-## Automatic Health Monitoring
-
-A watchdog runs every 2 minutes to ensure the VPN proxy stays healthy:
-- Checks VPN connection (tun0 interface)
-- Checks proxy is listening on port 1080
-- Tests end-to-end connectivity through proxy
-- Auto-restarts if issues detected (with cooldowns)
-
-**Check watchdog logs:**
-```bash
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "tail -50 /home/YOUR_USERNAME/vpn-proxy-watchdog.log"
-```
-
-**Watchdog status:**
-```bash
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "systemctl status vpn-proxy-watchdog.timer"
-```
-
-## Control Commands (on reTerminal)
-
-```bash
-# Start VPN and proxy
-vpn-proxy-ctl.sh start
-
-# Stop VPN and proxy
-vpn-proxy-ctl.sh stop
-
-# Restart
-vpn-proxy-ctl.sh restart
-
-# Check status
-vpn-proxy-ctl.sh status
-
-# Test proxy connection
-vpn-proxy-ctl.sh test
+┌─────────────────────────────────────────┐
+│              Mac (192.168.1.15)          │
+│                                         │
+│  Claude Code ──► Privoxy (:8118) ───┐   │
+│  NotebookLM ──► Privoxy (:8118) ───┤   │
+│  Antigravity ──► Privoxy (:8118) ──┤   │
+│                                     │   │
+│  Claude App ──► --proxy-server ─────┤   │
+│  Chrome ──────► --proxy-server ─────┤   │
+│                                     │   │
+│  Adobe Apps ──► PAC file (auto) ────┤   │
+│  (Photoshop, Illustrator, CC, ...) │   │
+│                                     │   │
+│  Other apps ──► Direct (no proxy) ──┼── │ ──► Internet (HK IP)
+│                                     │   │
+└─────────────────────────────────────┼───┘
+                                      │
+                            LAN :1080 │
+                                      ▼
+┌─────────────────────────────────────────┐
+│        reTerminal (192.168.1.76)        │
+│                                         │
+│  microsocks (:1080) ──► tun0 ───────────┼──► Unlocator US (LA)
+│   (SOCKS5, bound to VPN IP)            │    Exit: US IP
+│                                         │
+│  tun0 ─── Main VPN (all traffic) ──────┼──► Unlocator US
+│  tun1 ─── UK VPN (Apple TV only) ──────┼──► Unlocator UK (London)
+│                                         │
+│  Policy routing:                        │
+│    192.168.1.23 (Apple TV) ──► tun1     │
+│    Everything else ──► tun0             │
+│                                         │
+└─────────────────────────────────────────┘
 ```
 
 ---
 
-## Mac Configuration
+## Dual VPN Tunnels
 
-### Option 1: Claude Code via Privoxy (Recommended)
+### tun0 — Main VPN (US)
 
-Node.js applications like Claude Code don't respect `ALL_PROXY` or `SOCKS5` environment variables directly. The solution is to use Privoxy as an HTTP-to-SOCKS bridge.
+All reTerminal traffic routes through this tunnel. The SOCKS5 proxy also exits here.
 
-**Install Privoxy:**
+| Setting | Value |
+|---------|-------|
+| Config | `/etc/openvpn/unlocator/client.ovpn` |
+| Protocol | UDP |
+| Cipher | AES-256-CBC, SHA512, tls-auth |
+| Servers | `us-lax01`, `us-nyc01`, `us-mia01`, `us-chi01`, `nl-ams01` (random) |
+| Credentials | `/etc/openvpn/unlocator/auth.txt` |
+| Routing | `route-nopull` + `route-up /usr/local/bin/setup-main-vpn-routes.sh` |
+| Systemd | `unlocator-vpn.service` (restart on-failure, 5s delay) |
+
+**Route setup** (`setup-main-vpn-routes.sh`):
+- Adds `0.0.0.0/1` and `128.0.0.0/1` via tun0 peer IP (covers all traffic)
+- Adds VPN server bypass route via LAN gateway (`192.168.1.1`) to prevent routing loop
+- Peer IP extracted from `$ifconfig_remote` env var set by OpenVPN
+
+### tun1 — UK VPN (Apple TV)
+
+Only Apple TV (192.168.1.23) traffic routes here, via policy routing.
+
+| Setting | Value |
+|---------|-------|
+| Config | `/etc/openvpn/client/uk-vpn.conf` |
+| Server | `gb-lon01.unlocator.com` |
+| Routing | `route-nopull` + `route-up /usr/local/bin/setup-uk-vpn-routes.sh` |
+| Systemd | `uk-vpn-prime.service` (forking, 10s delay for routing setup) |
+
+**Route setup** (`setup-uk-vpn-routes.sh`):
+- Creates/populates routing table `ukvpn` (ID 100 in `/etc/iproute2/rt_tables`)
+- Adds policy rule: `from 192.168.1.23 lookup ukvpn` (priority 32765)
+- Default route in ukvpn table → tun1 gateway
+- LAN route (`192.168.1.0/24 dev eth0`) in ukvpn table for local access
+- NAT masquerade for Apple TV outbound on tun1
+
+**Additional scripts:**
+- `/usr/local/bin/setup-prime-routing.sh` — legacy startup script (called by uk-vpn-prime ExecStart, waits up to 30s for tun1)
+- `/usr/local/bin/cleanup-prime-routing.sh` — removes policy rule, flushes ukvpn table, removes NAT (called on service stop)
+
+---
+
+## SOCKS5 Proxy (microsocks)
+
+The bridge between the Mac and the VPN. All Mac proxy methods ultimately go through this.
+
+| Setting | Value |
+|---------|-------|
+| Binary | `/usr/local/bin/microsocks` |
+| Listen | `0.0.0.0:1080` |
+| Bind IP | tun0 internal IP (e.g. `10.90.0.6`) — extracted at startup |
+| User | `nobody:nogroup` |
+| Systemd | `vpn-proxy.service` |
+
+**Service dependencies:**
+- `Requires=unlocator-vpn.service` / `BindsTo=unlocator-vpn.service`
+- `ExecStartPre` waits for tun0 to have an inet address before launching
+- If unlocator-vpn stops, vpn-proxy stops automatically
+
+**Kill switch:** microsocks binds its outbound socket to the VPN's internal IP. If the VPN drops, that IP disappears and all proxy connections fail — traffic never leaks to the real IP.
+
+### Service startup order
+
+```
+unlocator-vpn (tun0 up, routes set)
+    │
+    ├──► vpn-proxy (waits for tun0 IP, starts microsocks)
+    │
+    └──► uk-vpn-prime (independent, tun1 up, Apple TV routing)
+              │
+              └──► setup-prime-routing.sh (after 10s delay)
+```
+
+**Restart order** (if manually restarting):
 ```bash
-brew install privoxy
+sudo systemctl restart unlocator-vpn
+sleep 12
+sudo systemctl restart uk-vpn-prime
+sleep 15
+sudo systemctl restart vpn-proxy
 ```
 
-**Configure Privoxy** (`/opt/homebrew/etc/privoxy/config`):
-```
-# Forward all traffic through reTerminal SOCKS5 proxy
-listen-address  127.0.0.1:8118
-forward-socks5  /  YOUR_DEVICE_IP:1080  .
-```
+---
 
-**Start Privoxy:**
+## Mac Proxy Methods
+
+### 1. Privoxy (HTTP-to-SOCKS bridge)
+
+For apps that support `HTTP_PROXY`/`HTTPS_PROXY` but not SOCKS5 directly (Node.js, Electron with env vars).
+
+| Setting | Value |
+|---------|-------|
+| Config | `/opt/homebrew/etc/privoxy/config` |
+| Listen | `127.0.0.1:8118` |
+| Forward | `forward-socks5 / 192.168.1.76:1080 .` |
+| Service | `brew services start privoxy` |
+
+**Chain:** App → Privoxy (localhost:8118) → microsocks (reTerminal:1080) → tun0 → Internet
+
+**Used by:** `claude-vpn`, `notebooklm-vpn`, `antigravity-vpn`
+
+### 2. Direct SOCKS5 (`--proxy-server` flag)
+
+For Electron/Chrome apps that accept the flag at launch.
+
+**Chain:** App → microsocks (reTerminal:1080) → tun0 → Internet
+
+**Used by:** `claude-app-vpn`, `chrome-vpn`
+
+### 3. PAC File (macOS Auto Proxy)
+
+For apps that use macOS CFProxy API (Adobe apps, Safari, native apps). Routes only matching domains through the proxy; everything else goes direct.
+
+| Setting | Value |
+|---------|-------|
+| PAC file | `~/.config/proxy/adobe-vpn.pac` |
+| Proxy | `SOCKS5 192.168.1.76:1080; DIRECT` |
+| Toggle | `adobe-vpn-on` / `adobe-vpn-off` |
+| macOS API | `networksetup -setautoproxyurl "Wi-Fi" "file://..."` |
+
+**Chain:** Adobe App → macOS CFProxy → PAC lookup → SOCKS5 (reTerminal:1080) → tun0 → Internet
+
+**DNS privacy:** `SOCKS5` (not `SOCKS`) tells the client to resolve DNS remotely through the proxy, preventing DNS leaks.
+
+**Fallback:** `; DIRECT` after the SOCKS5 entry means Adobe apps still work if the proxy is down (at the cost of privacy). Remove the fallback for strict kill-switch behavior.
+
+#### Adobe domains routed through proxy
+
+**Core services:**
+`.adobe.com`, `.adobelogin.com`, `.adobe.io`, `.adobesc.com`, `.adobecc.com`, `.creativecloud.com`, `.behance.net`, `.typekit.net`, `.adobeexchange.com`
+
+**Analytics/tracking (privacy-critical):**
+`.demdex.net`, `.omniture.com`, `.2o7.net`, `.adobedtm.com`, `.adobedc.net`, `.adobetag.com`, `.everesttech.net`
+
+**Media:**
+`.scene7.com`, `.ftcdn.net`
+
+#### First-time use (prevent leaks from cached connections)
+
 ```bash
-brew services start privoxy
+adobe-vpn-on      # Kills Adobe procs, flushes DNS, clears caches, enables PAC
+adobe-vpn-status  # Verify IPs differ before launching apps
+# Then launch Creative Cloud / Photoshop / etc.
 ```
 
-**Add alias to `~/.zshrc`:**
+The `adobe-vpn-on` script automatically:
+1. Kills all Adobe background processes (CCXProcess, CCLibrary, AdobeIPCBroker, Core Sync, etc.)
+2. Flushes macOS DNS cache (if sudo available)
+3. Clears Adobe connection caches (`~/Library/Caches/com.adobe.*`, `~/Library/Caches/Adobe*`)
+4. Enables the PAC file on Wi-Fi
+5. Pushes status to the health dashboard on the reTerminal
+
+---
+
+## Shell Aliases (`~/.zshrc`)
+
 ```bash
-# Route Claude Code traffic through VPN
+# Claude Code (terminal) — via Privoxy
 alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
 
-# VPN Proxy for curl (direct SOCKS5)
-alias vpn-curl='curl --socks5-hostname YOUR_DEVICE_IP:1080'
-```
+# NotebookLM (Chrome app mode) — via Privoxy
+alias notebooklm-vpn='~/bin/notebooklm-vpn'
 
-**Test it:**
-```bash
-source ~/.zshrc
+# Google Antigravity IDE — via Privoxy
+alias antigravity-vpn='~/bin/antigravity-vpn'
 
-# Test direct SOCKS5 (should show VPN IP)
-vpn-curl https://api.ipify.org
+# Claude desktop app — direct SOCKS5
+alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://192.168.1.76:1080"'
 
-# Run Claude Code through VPN
-claude-vpn
-```
+# Chrome browser — direct SOCKS5
+alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://192.168.1.76:1080"'
 
-### Option 2: Claude Desktop App & Chrome (Recommended for GUI apps)
+# curl via VPN
+alias vpn-curl='curl --socks5-hostname 192.168.1.76:1080'
 
-Electron-based apps (Claude desktop, Chrome) support the `--proxy-server` flag for direct SOCKS5 proxy.
-
-**Add aliases to `~/.zshrc`:**
-```bash
-# Claude desktop app via VPN
-alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
-
-# Chrome via VPN (for claude.ai web)
-alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
-```
-
-**Usage:**
-```bash
-source ~/.zshrc
-
-# Launch Claude desktop through VPN
-claude-app-vpn
-
-# Launch Chrome through VPN
-chrome-vpn
-```
-
-**Note:** These launch separate instances with VPN routing. Your normal Chrome/Claude sessions remain unaffected.
-
-### Option 3: Browser Extensions
-
-**Chrome with Proxy SwitchyOmega:**
-1. Install "Proxy SwitchyOmega" extension
-2. Create new profile "VPN"
-3. Protocol: SOCKS5, Server: YOUR_DEVICE_IP, Port: 1080
-4. Add rule: `*.anthropic.com` → VPN profile
-5. Add rule: `*.claude.ai` → VPN profile
-
-**Safari (System Proxy):**
-1. System Preferences → Network → Wi-Fi → Advanced → Proxies
-2. Enable "SOCKS Proxy"
-3. Server: YOUR_DEVICE_IP, Port: 1080
-4. Note: This affects ALL Safari traffic
-
-### Option 4: Per-Application Proxy (macOS)
-
-For apps that respect system proxy but you want per-app control:
-
-```bash
-# Run specific app through proxy
-networksetup -setsocksfirewallproxy "Wi-Fi" YOUR_DEVICE_IP 1080
-
-# Disable when done
-networksetup -setsocksfirewallproxystate "Wi-Fi" off
+# Adobe apps — PAC file toggle
+alias adobe-vpn-on='~/.local/bin/adobe-vpn-on'
+alias adobe-vpn-off='~/.local/bin/adobe-vpn-off'
+alias adobe-vpn-status='~/.local/bin/adobe-vpn-status'
 ```
 
 ---
 
-## Testing
+## Health Dashboard
 
-### Quick Test from Mac
-```bash
-# Without proxy (your normal IP)
-curl https://api.ipify.org
+The health dashboard at `http://192.168.1.76:8088` monitors all VPN/proxy infrastructure with auto-refresh every 30s.
 
-# With proxy (VPN IP - should be different)
-curl --socks5-hostname YOUR_DEVICE_IP:1080 https://api.ipify.org
-```
+### VPN/proxy checks
 
-### Expected Results
-- Normal: Your home IP (e.g., Hong Kong IP)
-- Via Proxy: 89.187.181.130 (Unlocator Chicago)
+| Card | What it checks |
+|------|---------------|
+| Main VPN (tun0) | Interface up, split routes on tun0, US exit IP |
+| UK VPN (tun1) | Interface up, Apple TV policy rule, ukvpn table, UK exit IP |
+| SOCKS5 Proxy | Port 1080 listening, exit IP matches tun0 |
+| Adobe VPN (PAC) | On/off state, SOCKS5 reachability, **toggle button** |
+
+### Adobe VPN toggle
+
+The Adobe VPN card has an **ON/OFF button** that remotely controls the Mac's PAC proxy setting via SSH (reTerminal → Mac reverse SSH).
+
+**How it works:**
+- Dashboard API endpoint: `POST /api/adobe-vpn/on` or `POST /api/adobe-vpn/off`
+- Executes `networksetup` on the Mac via SSH (reTerminal → Mac reverse SSH)
+- Updates `/tmp/adobe-vpn-status` on the reTerminal for state tracking
+- SSH key: `/home/YOUR_USERNAME/.ssh/id_ed25519` (ed25519, comment: `reterminal-to-mac`)
+
+**Note:** The dashboard toggle does not kill Adobe processes or flush DNS — it only toggles the PAC file. For a clean first-time enable (with process kill + cache clear), use `adobe-vpn-on` from the Mac terminal.
+
+### API endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/` | GET | Dashboard HTML |
+| `/api` | GET | Full JSON status |
+| `/health` | GET | 200/503 for Uptime Kuma |
+| `/api/adobe-vpn/on` | POST | Enable PAC proxy on Mac |
+| `/api/adobe-vpn/off` | POST | Disable PAC proxy on Mac |
 
 ---
 
-## Failover / Kill Switch
+## Testing & Verification
 
-The proxy is **bound to the VPN interface IP**. If the VPN disconnects:
-- The bound IP disappears
-- Proxy connections fail (cannot route)
-- **Traffic does NOT leak** to your real IP
+### Quick IP comparison
 
-This is automatic - no manual kill switch needed.
+```bash
+# Direct IP (HK)
+curl https://ifconfig.me
+
+# Via SOCKS5 proxy (US)
+curl --socks5-hostname 192.168.1.76:1080 https://ifconfig.me
+
+# Via Privoxy (US, same as above)
+curl -x http://127.0.0.1:8118 https://ifconfig.me
+```
+
+### Adobe VPN verification
+
+```bash
+adobe-vpn-status
+# Should show:
+#   Auto Proxy: Enabled
+#   microsocks: reachable
+#   Direct IP ≠ Proxied IP
+```
+
+### Monitor Adobe proxy traffic
+
+```bash
+# On the Mac — watch connections to the SOCKS5 proxy
+sudo tcpdump -i en0 -n host 192.168.1.76 and port 1080
+```
+
+### On the reTerminal
+
+```bash
+# VPN interfaces
+ip -4 addr show tun0   # Main VPN
+ip -4 addr show tun1   # UK VPN
+
+# Routes
+ip route show | grep -E '0\.0\.0\.0/1|128\.0\.0\.0/1'  # Should be on tun0
+ip route show table ukvpn                                # Apple TV → tun1
+
+# Policy rules
+ip rule show | grep ukvpn    # 32765: from 192.168.1.23 lookup ukvpn
+
+# Proxy
+ss -tlnp | grep 1080         # microsocks listening
+
+# Exit IPs
+curl -s https://ipinfo.io                                  # tun0 exit
+curl -s --interface tun1 https://ipinfo.io                 # tun1 exit
+curl -s --proxy socks5h://localhost:1080 https://ipinfo.io # proxy exit
+```
 
 ---
 
 ## Troubleshooting
 
-### Proxy not connecting
-```bash
-# Check if VPN is up
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "vpn-proxy-ctl.sh status"
+### Proxy not connecting from Mac
 
-# Restart if needed
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "vpn-proxy-ctl.sh restart"
+```bash
+# 1. Check SOCKS5 reachability
+nc -z -w3 192.168.1.76 1080 && echo OK || echo UNREACHABLE
+
+# 2. Check VPN on reTerminal
+ssh reterminal "systemctl status unlocator-vpn vpn-proxy"
+
+# 3. Restart the stack
+ssh reterminal "sudo systemctl restart unlocator-vpn && sleep 12 && sudo systemctl restart vpn-proxy"
 ```
 
-### VPN won't connect
+### Adobe apps not routing through proxy
+
 ```bash
-# Check OpenVPN logs
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "sudo journalctl -u unlocator-vpn -n 50"
+# 1. Check PAC is enabled
+networksetup -getautoproxyurl "Wi-Fi"
+
+# 2. If enabled but leaking: kill cached connections
+adobe-vpn-on   # Does full kill + flush + re-enable
+
+# 3. Verify with tcpdump
+sudo tcpdump -i en0 -n host 192.168.1.76 and port 1080
+# Should see SYN packets when Adobe apps make requests
 ```
 
-### Slow connection
-The proxy adds a hop. For latency-sensitive apps, consider:
-- Using UDP config (already configured)
-- Choosing a closer Unlocator server
+### VPN exit IP unexpected
 
-### Privoxy issues (Mac)
 ```bash
-# Check if Privoxy is running
+# Check routes haven't been overwritten
+ssh reterminal "ip route show | grep -E '0\.0\.0\.0/1|128\.0\.0\.0/1'"
+# Both should say "dev tun0"
+
+# If routes are missing or on wrong interface, restart VPN
+ssh reterminal "sudo systemctl restart unlocator-vpn"
+```
+
+### Apple TV not routing through UK VPN
+
+```bash
+# Check policy rule exists
+ssh reterminal "ip rule show | grep 192.168.1.23"
+
+# Check ukvpn table has default route
+ssh reterminal "ip route show table ukvpn"
+
+# Restart UK VPN
+ssh reterminal "sudo systemctl restart uk-vpn-prime"
+```
+
+### Privoxy not forwarding (Mac)
+
+```bash
+# Check if running
 brew services list | grep privoxy
 
-# Restart Privoxy
+# Restart
 brew services restart privoxy
 
-# Test Privoxy is forwarding correctly
-curl -x http://127.0.0.1:8118 https://api.ipify.org
-# Should show VPN IP (89.187.181.130)
+# Test chain
+curl -x http://127.0.0.1:8118 https://ifconfig.me
+# Should show VPN IP
+```
+
+### Dashboard Adobe toggle not working
+
+```bash
+# Test reverse SSH manually
+ssh reterminal "ssh -i /home/YOUR_USERNAME/.ssh/id_ed25519 YOUR_MAC_USER@YOUR_MAC_IP echo ok"
+
+# Check Mac Remote Login is enabled
+# System Settings → General → Sharing → Remote Login
+
+# Check dashboard logs
+ssh reterminal "sudo journalctl -u health-dashboard --since '5 min ago' --no-pager | tail -20"
 ```
 
 ---
 
-## Service Management
+## File Reference
 
-### Enable auto-start on boot
-```bash
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "sudo systemctl enable unlocator-vpn vpn-proxy"
-```
-
-### Disable auto-start
-```bash
-ssh YOUR_USERNAME@YOUR_DEVICE_IP "sudo systemctl disable unlocator-vpn vpn-proxy"
-```
-
----
-
-## Files on reTerminal
+### reTerminal
 
 | File | Purpose |
 |------|---------|
-| `/etc/openvpn/unlocator/client.ovpn` | OpenVPN config |
+| `/etc/openvpn/unlocator/client.ovpn` | Main VPN config (US) |
 | `/etc/openvpn/unlocator/auth.txt` | VPN credentials (root only) |
-| `/etc/systemd/system/unlocator-vpn.service` | VPN systemd service |
-| `/etc/systemd/system/vpn-proxy.service` | Proxy systemd service |
-| `/etc/systemd/system/vpn-proxy-watchdog.service` | Watchdog service |
-| `/etc/systemd/system/vpn-proxy-watchdog.timer` | Watchdog timer (every 2 min) |
-| `/usr/local/bin/vpn-proxy-ctl.sh` | Control script |
-| `/usr/local/bin/vpn-proxy-watchdog.sh` | Health check script |
+| `/etc/openvpn/client/uk-vpn.conf` | UK VPN config |
+| `/usr/local/bin/setup-main-vpn-routes.sh` | tun0 route pinning (called by OpenVPN) |
+| `/usr/local/bin/setup-uk-vpn-routes.sh` | tun1 + ukvpn table setup (called by OpenVPN) |
+| `/usr/local/bin/setup-prime-routing.sh` | Legacy Apple TV routing (called by systemd) |
+| `/usr/local/bin/cleanup-prime-routing.sh` | Apple TV routing teardown |
 | `/usr/local/bin/microsocks` | SOCKS5 proxy binary |
-| `/home/YOUR_USERNAME/vpn-proxy-watchdog.log` | Watchdog log file |
+| `/etc/systemd/system/unlocator-vpn.service` | Main VPN service |
+| `/etc/systemd/system/uk-vpn-prime.service` | UK VPN + Apple TV routing |
+| `/etc/systemd/system/vpn-proxy.service` | SOCKS5 proxy service |
+| `/home/YOUR_USERNAME/health-dashboard/app.py` | Health dashboard (port 8088) |
+| `/tmp/adobe-vpn-status` | Adobe VPN state file (written by toggle) |
 
-## Files on Mac
+### Mac
 
 | File | Purpose |
 |------|---------|
-| `/opt/homebrew/etc/privoxy/config` | Privoxy HTTP-to-SOCKS config |
-| `~/.zshrc` | Shell aliases (see below) |
-| `~/bin/notebooklm-vpn` | NotebookLM launcher script |
-| `/Applications/NotebookLM VPN.app` | NotebookLM macOS app (clickable) |
-| `~/bin/antigravity-vpn` | Antigravity launcher script |
-| `/Applications/Antigravity VPN.app` | Antigravity macOS app (clickable) |
-
-### Shell Aliases Summary
-
-Add all of these to `~/.zshrc`:
-
-```bash
-# Claude Code (terminal) - via Privoxy
-alias claude-vpn='HTTPS_PROXY=http://127.0.0.1:8118 HTTP_PROXY=http://127.0.0.1:8118 claude'
-
-# NotebookLM (Chrome app mode) - via Privoxy
-alias notebooklm-vpn='~/bin/notebooklm-vpn'
-
-# Google Antigravity IDE - via Privoxy
-alias antigravity-vpn='~/bin/antigravity-vpn'
-
-# Claude desktop app - via macOS Launch Services
-alias claude-app-vpn='open -a Claude --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
-
-# Chrome browser - via macOS Launch Services
-alias chrome-vpn='open -a "Google Chrome" --args --proxy-server="socks5://YOUR_DEVICE_IP:1080"'
-
-# curl via VPN
-alias vpn-curl='curl --socks5-hostname YOUR_DEVICE_IP:1080'
-```
-
----
-
-## NotebookLM VPN App
-
-Google NotebookLM is web-only, but we've created an app-like experience that routes through the VPN.
-
-### Usage
-
-**Option 1 - Click the app:**
-- Open `~/Applications/NotebookLM VPN.app` (or find via Spotlight)
-
-**Option 2 - Terminal:**
-```bash
-notebooklm-vpn
-```
-
-### How it works
-
-```
-NotebookLM VPN app
-       │
-       ▼
-Chrome (--proxy-server=http://127.0.0.1:8118)
-       │
-       ▼
-Privoxy (127.0.0.1:8118) → reTerminal SOCKS5 (:1080) → OpenVPN → Internet
-```
-
-### Features
-
-- **Isolated Chrome profile**: Uses `~/.config/chrome-vpn-profile` - separate from your main Chrome
-- **App-like window**: Opens in `--app` mode (no browser chrome)
-- **Pre-flight checks**: Alerts if Privoxy or VPN proxy is down
-- **Persistent sessions**: Sign in once, stays logged in
-
-### Notes
-
-- First launch requires Google sign-in (fresh profile)
-- Uses Privoxy instead of direct SOCKS5 (better Chrome compatibility)
-- Works with HK-based Google accounts (tested Feb 2026)
-
----
-
-## Antigravity VPN App
-
-Google Antigravity is an AI-powered IDE (Electron-based, fork of VS Code). This launcher routes all traffic through the VPN.
-
-### Usage
-
-**Option 1 - Click the app:**
-- Open `/Applications/Antigravity VPN.app` (or find via Spotlight)
-
-**Option 2 - Terminal:**
-```bash
-antigravity-vpn
-```
-
-### How it works
-
-```
-Antigravity VPN app
-       │
-       ▼
-Antigravity.app (Electron)
-       │ HTTP_PROXY / HTTPS_PROXY env vars
-       ▼
-Privoxy (127.0.0.1:8118) → reTerminal SOCKS5 (:1080) → OpenVPN → Internet
-```
-
-### Features
-
-- **Full app VPN routing**: All Antigravity traffic goes through VPN
-- **Pre-flight checks**: Alerts if Privoxy or VPN proxy is down
-- **Uses existing app**: Launches the installed Antigravity.app with proxy settings
-
-### Notes
-
-- Uses HTTP_PROXY/HTTPS_PROXY environment variables (standard for Electron apps)
-- Icon copied from original Antigravity app
-- Added Feb 2026
+| `/opt/homebrew/etc/privoxy/config` | HTTP-to-SOCKS bridge config |
+| `~/.config/proxy/adobe-vpn.pac` | PAC file for Adobe domain routing |
+| `~/.local/bin/adobe-vpn-on` | Enable PAC + kill Adobe + flush DNS |
+| `~/.local/bin/adobe-vpn-off` | Disable PAC proxy |
+| `~/.local/bin/adobe-vpn-status` | Show proxy state and IP comparison |
+| `~/bin/notebooklm-vpn` | NotebookLM VPN launcher |
+| `~/bin/antigravity-vpn` | Antigravity VPN launcher |
+| `~/.zshrc` | Shell aliases for all VPN commands |

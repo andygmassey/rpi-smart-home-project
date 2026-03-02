@@ -14,8 +14,9 @@ services:
     network_mode: host
     environment:
       TZ: ${TZ:-Asia/Hong_Kong}
-      # Unlocator SmartDNS for streaming geo-unblocking
-      PIHOLE_DNS_: '185.37.37.37;185.37.39.39'
+      # Unlocator SmartDNS for streaming geo-unblocking (HK location needs geo-unblocking)
+      PIHOLE_DNS_1: '185.37.37.37'
+      PIHOLE_DNS_2: '185.37.39.39'
       DNSMASQ_LISTENING: 'all'
       # FTLCONF_LOCAL_IPV4 sets the web redirect (replaces deprecated VIRTUAL_HOST)
       FTLCONF_LOCAL_IPV4: ${DEVICE_IP:-192.168.1.100}

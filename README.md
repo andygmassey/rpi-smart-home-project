@@ -195,39 +195,55 @@ The system runs two concurrent OpenVPN tunnels for geographic traffic routing:
 | Primary VPN | tun0 | Default traffic routing | Unlocator (US) |
 | UK VPN | tun1 | Streaming geo-access | Unlocator (UK London) |
 
-### Policy-Based Routing
+### Route Pinning
 
-Selective traffic routing is implemented using Linux policy routing (`ip rule` / `ip route`) rather than routing all traffic through the UK tunnel:
+Both tunnels use `route-nopull` to prevent server-pushed routes, since Unlocator can assign the same IP pair to both tunnels, causing route confusion. Routes are added explicitly with `dev tun0`/`dev tun1` by post-connect scripts:
 
-- **`route-nopull`**: UK VPN does not override default routes
+- **Primary VPN**: `setup-main-vpn-routes.sh` pins `0.0.0.0/1` and `128.0.0.0/1` to `dev tun0` via OpenVPN `route-up`
+- **UK VPN**: `setup-prime-routing.sh` creates the `ukvpn` policy routing table for device-based routing through `dev tun1`
+
+### Policy-Based Routing (UK VPN)
+
+Selective traffic routing uses Linux policy routing (`ip rule` / `ip route`) to send specific LAN devices through the UK tunnel:
+
 - **Dedicated routing table** (`ukvpn`): Separate routing table for UK-bound traffic
 - **Source-based routing**: Specific LAN devices are policy-routed through the UK tunnel via `ip rule`
 - **NAT masquerade**: Traffic from routed devices is NATed on tun1 for proper return routing
+
+### SOCKS5 Proxy
+
+A SOCKS5 proxy (`microsocks`) runs on port 1080, bound to tun0's IP for VPN-routed access from other devices:
+
+| Service | Port | Description |
+|---------|------|-------------|
+| `vpn-proxy.service` | 1080 | SOCKS5 proxy via VPN (microsocks) |
+| `vpn-proxy-watchdog.timer` | — | Health check every 2 min, auto-restarts on failure |
 
 ### Systemd Services
 
 | Service | Config | Description |
 |---------|--------|-------------|
-| `uk-vpn-prime.service` | `/etc/openvpn/client/uk-vpn.conf` | UK VPN tunnel + routing setup |
+| `unlocator-vpn.service` | `/etc/openvpn/unlocator/client.ovpn` | Primary VPN tunnel (tun0) |
+| `uk-vpn-prime.service` | `/etc/openvpn/client/uk-vpn.conf` | UK VPN tunnel + routing setup (tun1) |
+| `vpn-proxy.service` | — | SOCKS5 proxy bound to tun0 |
 
 **Routing scripts:**
-- `/usr/local/bin/setup-prime-routing.sh` — Creates routing table, ip rules, and NAT on VPN start
-- `/usr/local/bin/cleanup-prime-routing.sh` — Removes routing rules on VPN stop
+- `/usr/local/bin/setup-main-vpn-routes.sh` — Pins default routes to tun0 (called by OpenVPN route-up)
+- `/usr/local/bin/setup-prime-routing.sh` — Creates policy routing table, ip rules, and NAT on UK VPN start
+- `/usr/local/bin/cleanup-prime-routing.sh` — Removes UK routing rules on VPN stop
 
 ### Management
 ```bash
 # Check status
-sudo systemctl status uk-vpn-prime
+sudo systemctl status unlocator-vpn uk-vpn-prime vpn-proxy
 
-# Restart UK VPN
-sudo systemctl restart uk-vpn-prime
-
-# Disable UK VPN
-sudo systemctl disable --now uk-vpn-prime
+# Restart all VPN (order matters: main first, then UK, then proxy)
+sudo systemctl restart unlocator-vpn && sleep 12 && sudo systemctl restart uk-vpn-prime && sleep 15 && sudo systemctl restart vpn-proxy
 
 # Verify routing
-ip rule list
-ip route show table ukvpn
+ip route | grep tun           # Default routes should be dev tun0
+ip rule list                  # Apple TV policy rule
+ip route show table ukvpn     # UK routing table
 ```
 
 

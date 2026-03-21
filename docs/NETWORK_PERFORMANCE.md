@@ -201,10 +201,10 @@ The streaming buffering issues are caused by:
 
 Two Apple TVs are policy-routed through the UK VPN (tun1):
 
-| Device | IP | Location |
-|--------|-----|----------|
-| Living Room Apple TV | 192.168.1.21 | Router (wired?) |
-| Man Cave Apple TV | 192.168.1.31 | Man Cave satellite |
+| Device | IP | Connection | Location |
+|--------|-----|------------|----------|
+| Living Room Apple TV | 192.168.1.21 | WiFi | Router area |
+| Man Cave Apple TV | 192.168.1.31 | WiFi | Man Cave satellite (poor backhaul) |
 
 Both IPs have DHCP reservations at the Orbi router to prevent IP changes breaking the routing rules.
 

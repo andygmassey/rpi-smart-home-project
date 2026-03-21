@@ -34,7 +34,8 @@ Route application traffic from the Mac through Unlocator VPN tunnels on the reTe
 │  tun1 ─── UK VPN (Apple TV only) ──────┼──► Unlocator UK (London)
 │                                         │
 │  Policy routing:                        │
-│    192.168.1.23 (Apple TV) ──► tun1     │
+│    192.168.1.21 (Living Room ATV)► tun1 │
+│    192.168.1.31 (Man Cave ATV) ──► tun1 │
 │    Everything else ──► tun0             │
 │                                         │
 └─────────────────────────────────────────┘
@@ -63,23 +64,31 @@ All reTerminal traffic routes through this tunnel. The SOCKS5 proxy also exits h
 - Adds VPN server bypass route via LAN gateway (`192.168.1.1`) to prevent routing loop
 - Peer IP extracted from `$ifconfig_remote` env var set by OpenVPN
 
-### tun1 — UK VPN (Apple TV)
+### tun1 — UK VPN (Apple TVs)
 
-Only Apple TV (192.168.1.23) traffic routes here, via policy routing.
+Two Apple TVs (both on WiFi) are policy-routed through this tunnel:
+
+| Device | IP |
+|--------|-----|
+| Living Room Apple TV | 192.168.1.21 |
+| Man Cave Apple TV | 192.168.1.31 |
 
 | Setting | Value |
 |---------|-------|
 | Config | `/etc/openvpn/client/uk-vpn.conf` |
 | Server | `gb-lon01.unlocator.com` |
 | Routing | `route-nopull` + `route-up /usr/local/bin/setup-uk-vpn-routes.sh` |
+| Keepalive | `ping 15`, `ping-restart 120` (server pushes ignored via `pull-filter`) |
 | Systemd | `uk-vpn-prime.service` (forking, 10s delay for routing setup) |
+
+**Keepalive tuning:** The Unlocator server pushes `ping 5, ping-restart 10`, which is too aggressive for the HK→London path (200ms+ latency, UDP jitter). The client config uses `pull-filter ignore "ping"` to reject the server's values and sets local keepalive timers with more tolerance, preventing frequent tunnel reconnects.
 
 **Route setup** (`setup-uk-vpn-routes.sh`):
 - Creates/populates routing table `ukvpn` (ID 100 in `/etc/iproute2/rt_tables`)
-- Adds policy rule: `from 192.168.1.23 lookup ukvpn` (priority 32765)
+- Adds policy rules: `from 192.168.1.21` and `from 192.168.1.31 lookup ukvpn` (priority 32765)
 - Default route in ukvpn table → tun1 gateway
 - LAN route (`192.168.1.0/24 dev eth0`) in ukvpn table for local access
-- NAT masquerade for Apple TV outbound on tun1
+- NAT masquerade for each Apple TV outbound on tun1
 
 **Additional scripts:**
 - `/usr/local/bin/setup-prime-routing.sh` — legacy startup script (called by uk-vpn-prime ExecStart, waits up to 30s for tun1)
@@ -309,7 +318,7 @@ ip route show | grep -E '0\.0\.0\.0/1|128\.0\.0\.0/1'  # Should be on tun0
 ip route show table ukvpn                                # Apple TV → tun1
 
 # Policy rules
-ip rule show | grep ukvpn    # 32765: from 192.168.1.23 lookup ukvpn
+ip rule show | grep ukvpn    # 32765: from 192.168.1.21/31 lookup ukvpn
 
 # Proxy
 ss -tlnp | grep 1080         # microsocks listening
@@ -365,11 +374,14 @@ ssh reterminal "sudo systemctl restart unlocator-vpn"
 ### Apple TV not routing through UK VPN
 
 ```bash
-# Check policy rule exists
-ssh reterminal "ip rule show | grep 192.168.1.23"
+# Check policy rules exist (both Apple TVs)
+ssh reterminal "ip rule show | grep ukvpn"
 
 # Check ukvpn table has default route
 ssh reterminal "ip route show table ukvpn"
+
+# Check UK VPN reconnect frequency (should be rare)
+ssh reterminal "sudo grep -c 'Restart pause' /var/log/openvpn-uk.log"
 
 # Restart UK VPN
 ssh reterminal "sudo systemctl restart uk-vpn-prime"

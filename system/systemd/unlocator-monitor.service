@@ -1,0 +1,7 @@
+[Unit]
+Description=Unlocator VPN/DNS Reliability Monitor
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/unlocator-monitor.sh

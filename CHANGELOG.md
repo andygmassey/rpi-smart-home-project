@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2026-03-24
 
+### Added
+- **Unlocator reliability monitor**: New systemd timer (`unlocator-monitor.timer`) runs every 5 minutes, logging SmartDNS response times, VPN tunnel latency, and reconnect counts to CSV. New dashboard card shows 24h reliability stats with sparkline visualizations
+- **Speed history chart improvements**: Value labels above bars, dashed average line on domestic chart, date/time labels on international chart, hover tooltips on all bars
+
 ### Fixed
 - **UK VPN tunnel stability**: Unlocator server pushes aggressive keepalive settings (`ping 5, ping-restart 10`) that caused constant reconnects (~every 2-5 minutes) on the HK→London path. Added `pull-filter ignore "ping"` with local `ping 15, ping-restart 120` to uk-vpn.conf
+- **Speed history chart rendering**: Bars were invisible due to CSS percentage height not resolving (parent had no explicit height). Date labels on every 4th bar were pushing bars upward — fixed with absolute positioning
 
 ### Changed
 - **TrueNAS → Gaming Rig**: Server at 192.168.1.37 reformatted from TrueNAS to Ubuntu Server. Updated dashboard (`app.py`), cron script (`isp-speed-log.sh`), and all documentation references. Speed test infrastructure unchanged (same hardware, SSH, curl-based tests)

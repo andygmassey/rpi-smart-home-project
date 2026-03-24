@@ -19,14 +19,14 @@ How internet speed is measured, what the numbers mean, and why different tests s
                   Wired │  Wired │  WiFi │  WiFi │
                        │       │       │      │
               ┌────────▼┐ ┌───▼──────┐│ ┌───▼────────┐
-              │reTerminal│ │ TrueNAS  ││ │  Phones /   │
+              │reTerminal│ │Gaming Rig││ │  Phones /   │
               │Pi CM4    │ │ i5-9400F ││ │  Laptops    │
               │.76       │ │ .37      ││ │  434 Mbps   │
               │          │ │ 519 Mbps ││ │  (WiFi)     │
               │ VPN ─────┤ │ (4-str)  ││ │             │
               │ Proxy    │ │ 161 Mbps ││ │             │
               │ Pi-hole  │ │ (single) ││ │             │
-              │ Dashboard│ │          ││ │             │
+              │ Dashboard│ │ Ubuntu   ││ │             │
               └──────────┘ └──────────┘│ └─────────────┘
                                        │
                               ┌────────▼───────┐
@@ -41,8 +41,8 @@ How internet speed is measured, what the numbers mean, and why different tests s
 |--------|--------|-------------|-----------------|-------|
 | Orbi Router | Built-in test | 982 Mbps | N/A | Tests to PCCW's own server |
 | iPhone (WiFi) | Speedtest app | 434 Mbps | N/A | WiFi overhead, HK Ookla server |
-| TrueNAS (wired) | curl, 4 parallel | 519 Mbps | 23 Mbps | Real throughput to Cloudflare |
-| TrueNAS (wired) | curl, single | 161 Mbps | 10–14 Mbps | Single TCP stream |
+| Gaming Rig (wired) | curl, 4 parallel | 519 Mbps | 23 Mbps | Real throughput to Cloudflare |
+| Gaming Rig (wired) | curl, single | 161 Mbps | 10–14 Mbps | Single TCP stream |
 | reTerminal (wired) | curl, 4 parallel | 130 Mbps | 4–8 Mbps | ARM CPU-limited |
 | reTerminal (wired) | speedtest-cli | 2.4 Mbps | N/A | Python tool, CPU-bound on ARM |
 
@@ -52,7 +52,7 @@ How internet speed is measured, what the numbers mean, and why different tests s
 
 2. **WiFi overhead is ~50%.** iPhone gets 434 Mbps over WiFi 6 vs 982 Mbps wired — normal.
 
-3. **TrueNAS is the accurate test rig.** Intel i5 with wired gigabit gives reliable results: 519 Mbps domestic, 161 Mbps single-stream.
+3. **Gaming Rig is the accurate test rig.** Intel i5 with wired gigabit gives reliable results: 519 Mbps domestic, 161 Mbps single-stream.
 
 4. **The reTerminal is CPU-limited.** The Raspberry Pi CM4 (quad-core ARM @ 1.5GHz) running VPN encryption, 13 Docker containers, Pi-hole, and the dashboard simultaneously cannot saturate a gigabit link. This is not an ISP or network problem.
 
@@ -96,7 +96,7 @@ CPU becomes the bottleneck before the network does. OpenVPN's AES-256-CBC encryp
 
 The dashboard at `http://192.168.1.76:8088` shows two speed cards:
 
-**ISP Speed (via TrueNAS):** Runs curl-based download tests from TrueNAS (Intel i5, wired). Tests:
+**ISP Speed (via Gaming Rig):** Runs curl-based download tests from the Gaming Rig (Intel i5, wired). Tests:
 - 4 parallel streams to Cloudflare HK edge (domestic speed)
 - Single stream to Linode London (UK speed)
 - Single stream to Tele2 (EU speed)
@@ -110,7 +110,7 @@ Script: `/usr/local/bin/isp-speed-log.sh`
 Schedule: 08:00, 12:00, 18:00, 23:00 daily
 Cron: `/etc/cron.d/isp-monitor`
 
-Runs from TrueNAS (SSH) for accurate results:
+Runs from Gaming Rig (SSH) for accurate results:
 - Domestic HK speed (4 parallel Cloudflare streams)
 - UK download (Linode London)
 - EU download (Tele2)
@@ -214,20 +214,25 @@ Both IPs have DHCP reservations at the Orbi router to prevent IP changes breakin
 
 | File | Purpose |
 |------|---------|
-| `/usr/local/bin/isp-speed-log.sh` | ISP speed monitor (cron, runs from TrueNAS) |
+| `/usr/local/bin/isp-speed-log.sh` | ISP speed monitor (cron, runs from Gaming Rig) |
 | `/etc/cron.d/isp-monitor` | Cron schedule (4x daily) |
 | `/home/YOUR_USERNAME/isp-monitor/speedtest.csv` | Speed test results CSV |
 | `/home/YOUR_USERNAME/isp-monitor/download-tests.csv` | Download test results CSV |
 | `/home/YOUR_USERNAME/isp-monitor/traceroute.log` | Traceroute log |
-| `/home/YOUR_USERNAME/health-dashboard/app.py` | Dashboard (speed tests via TrueNAS SSH) |
+| `/home/YOUR_USERNAME/health-dashboard/app.py` | Dashboard (speed tests via Gaming Rig SSH) |
 
-### TrueNAS
+### Gaming Rig (Ubuntu Server)
 
 | Detail | Value |
 |--------|-------|
 | IP | 192.168.1.37 |
+| OS | Ubuntu Server 24.04 |
 | SSH from reTerminal | `ssh -i /home/YOUR_USERNAME/.ssh/id_ed25519 YOUR_USERNAME@192.168.1.37` |
+| SSH alias (Mac) | `ssh gamingrig` |
+| Motherboard | ASUS PRIME B365M-A |
 | CPU | Intel Core i5-9400F @ 2.90GHz (6 cores) |
-| RAM | 46 GB |
+| GPU | NVIDIA GeForce RTX 2060 12GB |
+| RAM | 48 GB |
+| Storage | 2x 3.6TB WD Purple (SATA HDD) + 477GB Toshiba XG4 (NVMe SSD) |
 | Connection | Wired gigabit to Orbi Router |
-| Tools | curl, iperf3 |
+| Tools | curl |

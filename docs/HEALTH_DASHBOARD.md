@@ -35,11 +35,11 @@ If your family says "the Wi-Fi isn't working", they can look at the banner and t
 
 | Card | What it monitors | Source |
 |------|-----------------|--------|
-| **ISP Speed (via TrueNAS)** | Domestic HK (4-stream), single-stream, UK, EU speeds | TrueNAS SSH (Intel i5, wired) |
+| **ISP Speed (via Gaming Rig)** | Domestic HK (4-stream), single-stream, UK, EU speeds | Gaming Rig SSH (Intel i5, wired) |
 | **VPN Speed (via Tunnel)** | Speed through VPN tunnel | reTerminal speedtest-cli |
 | **Speed History** | Bar chart of domestic + international speeds over time | Cron CSV data (4x daily) |
 | **Streaming Services** | TCP connect test + latency to 7 platforms | Direct socket test |
-| **UK Streaming Routes** | Traceroute with ISP/org names per hop, bottleneck flagging | Via VPN, hop names via TrueNAS |
+| **UK Streaming Routes** | Traceroute with ISP/org names per hop, bottleneck flagging | Via VPN, hop names via Gaming Rig |
 
 ### VPN & Proxy
 
@@ -112,10 +112,10 @@ If your family says "the Wi-Fi isn't working", they can look at the banner and t
 
 ## Speed Test Architecture
 
-Speed tests run from **TrueNAS** (Intel i5-9400F, wired gigabit) for accurate results. The reTerminal's ARM CPU cannot saturate the network link.
+Speed tests run from **Gaming Rig** (Intel i5-9400F, wired gigabit) for accurate results. The reTerminal's ARM CPU cannot saturate the network link.
 
 ```
-Dashboard ──SSH──► TrueNAS (192.168.1.37)
+Dashboard ──SSH──► Gaming Rig (192.168.1.37)
                      │
                      ├── 4x parallel curl → Cloudflare HK edge (domestic)
                      ├── curl → Linode London (UK international)
@@ -128,7 +128,7 @@ See `docs/NETWORK_PERFORMANCE.md` for full speed test methodology and findings.
 
 ## Traceroute Hop Identification
 
-The UK traceroute card looks up the ISP/org name for each hop using ip-api.com (via TrueNAS for reliability). Hops with latency jumps >50ms are highlighted in red with the owner's name shown inline.
+The UK traceroute card looks up the ISP/org name for each hop using ip-api.com (via Gaming Rig for reliability). Hops with latency jumps >50ms are highlighted in red with the owner's name shown inline.
 
 ## Service Dependencies
 
@@ -136,7 +136,7 @@ The UK traceroute card looks up the ISP/org name for each hop using ip-api.com (
 health-dashboard.service (root, port 8088)
   ├── reads: Docker, systemd, network interfaces, Pi-hole
   ├── SSH to Mac: Adobe VPN toggle (networksetup)
-  ├── SSH to TrueNAS: Speed tests (curl downloads)
+  ├── SSH to Gaming Rig: Speed tests (curl downloads)
   └── writes: /tmp/adobe-vpn-status
 ```
 
